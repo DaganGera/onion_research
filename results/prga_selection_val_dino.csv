@@ -1,0 +1,3 @@
+candidate,cfg,val_K1,val_K4,val_K16,val_mean
+train-only-graph+dinov2-cache,"{'test_graph': False, 'second': True}",0.7654,0.839,0.9063,0.8369
+full+dinov2-cache,{'second': True},0.7839,0.8308,0.888,0.8342

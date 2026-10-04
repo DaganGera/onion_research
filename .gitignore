@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# data, caches and large artefacts (regenerate with the scripts; see README)
+data/raw/
+features/
+checkpoints/
+third_party/scold/scold.pth
+results/preds/
+results/log_*.txt
+*.pt
+*.npy
+third_party/models/
+results/logs/
+
+# local-only: Kaggle staging copies (contain photos + model weights), downloaded kernel outputs, scratch results
+kaggle/ds_*/
+kaggle/out_*/
+results_localtests/
+archive_v1/
+data/clean/pairs_checked.csv

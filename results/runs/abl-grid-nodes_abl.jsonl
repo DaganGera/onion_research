@@ -1,0 +1,6 @@
+{"method": "abl-grid-nodes", "K": "1", "seed": 1, "n_support": 4, "fit_s": 12.25, "acc": 0.8498423541776143, "macro_f1": 0.8113193654778129, "params": 1121316}
+{"method": "abl-grid-nodes", "K": "1", "seed": 2, "n_support": 4, "fit_s": 11.27, "acc": 0.8336836573830794, "macro_f1": 0.794939153686703, "params": 1121316}
+{"method": "abl-grid-nodes", "K": "1", "seed": 3, "n_support": 4, "fit_s": 11.29, "acc": 0.8406463478717814, "macro_f1": 0.7893609184333698, "params": 1121316}
+{"method": "abl-grid-nodes", "K": "4", "seed": 1, "n_support": 16, "fit_s": 11.16, "acc": 0.9217025748817657, "macro_f1": 0.9102197392668844, "params": 1121316}
+{"method": "abl-grid-nodes", "K": "4", "seed": 2, "n_support": 16, "fit_s": 11.49, "acc": 0.8675775091960063, "macro_f1": 0.838241677025324, "params": 1121316}
+{"method": "abl-grid-nodes", "K": "4", "seed": 3, "n_support": 16, "fit_s": 11.36, "acc": 0.8888596952180767, "macro_f1": 0.8679353237676217, "params": 1121316}

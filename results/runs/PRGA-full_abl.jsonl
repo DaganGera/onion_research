@@ -1,0 +1,6 @@
+{"method": "PRGA-full", "K": "1", "seed": 1, "n_support": 4, "fit_s": 14.12, "acc": 0.8506305832895428, "macro_f1": 0.816618965400473, "params": 1121316}
+{"method": "PRGA-full", "K": "1", "seed": 2, "n_support": 4, "fit_s": 11.64, "acc": 0.8281660535995796, "macro_f1": 0.7945200486668853, "params": 1121316}
+{"method": "PRGA-full", "K": "1", "seed": 3, "n_support": 4, "fit_s": 12.36, "acc": 0.8305307409353652, "macro_f1": 0.7761330601695446, "params": 1121316}
+{"method": "PRGA-full", "K": "4", "seed": 1, "n_support": 16, "fit_s": 16.21, "acc": 0.9205202312138728, "macro_f1": 0.9062149201135039, "params": 1121316}
+{"method": "PRGA-full", "K": "4", "seed": 2, "n_support": 16, "fit_s": 11.95, "acc": 0.8507619548081976, "macro_f1": 0.7969467176198287, "params": 1121316}
+{"method": "PRGA-full", "K": "4", "seed": 3, "n_support": 16, "fit_s": 11.87, "acc": 0.8256699947451392, "macro_f1": 0.810636064719001, "params": 1121316}

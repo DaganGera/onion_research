@@ -1,0 +1,8 @@
+candidate,cfg,val_K1,val_K4,val_K16,val_mean
+train-only+no-geometry,"{'test_graph': False, 'use_geom': False}",0.7923,0.8877,0.9462,0.8754
+train-only-graph,{'test_graph': False},0.7846,0.8887,0.9472,0.8735
+train-only-graph-H128,"{'test_graph': False, 'H': 128}",0.7802,0.8864,0.9459,0.8708
+no-geometry,{'use_geom': False},0.7501,0.8712,0.9431,0.8548
+spots-only,"{'keep_kinds': (3,)}",0.7586,0.8511,0.9355,0.8484
+full-H128,{'H': 128},0.7532,0.848,0.9313,0.8442
+full,{},0.7416,0.8083,0.9249,0.8249

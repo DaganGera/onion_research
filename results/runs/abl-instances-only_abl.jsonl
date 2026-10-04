@@ -1,0 +1,6 @@
+{"method": "abl-instances-only", "K": "1", "seed": 1, "n_support": 4, "fit_s": 15.7, "acc": 0.8460325801366264, "macro_f1": 0.8037947357412099, "params": 1121316}
+{"method": "abl-instances-only", "K": "1", "seed": 2, "n_support": 4, "fit_s": 12.12, "acc": 0.8125328428796637, "macro_f1": 0.7836133004884057, "params": 1121316}
+{"method": "abl-instances-only", "K": "1", "seed": 3, "n_support": 4, "fit_s": 11.89, "acc": 0.8377561744613767, "macro_f1": 0.7843081581070876, "params": 1121316}
+{"method": "abl-instances-only", "K": "4", "seed": 1, "n_support": 16, "fit_s": 11.74, "acc": 0.8983184445612191, "macro_f1": 0.8800591973798231, "params": 1121316}
+{"method": "abl-instances-only", "K": "4", "seed": 2, "n_support": 16, "fit_s": 11.67, "acc": 0.8719127693116132, "macro_f1": 0.8303027398753382, "params": 1121316}
+{"method": "abl-instances-only", "K": "4", "seed": 3, "n_support": 16, "fit_s": 11.93, "acc": 0.8667892800840777, "macro_f1": 0.8529191900362644, "params": 1121316}

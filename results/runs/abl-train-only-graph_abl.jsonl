@@ -1,0 +1,6 @@
+{"method": "abl-train-only-graph", "K": "1", "seed": 1, "n_support": 4, "fit_s": 11.13, "acc": 0.8687598528638991, "macro_f1": 0.8396475018601904, "params": 1121316}
+{"method": "abl-train-only-graph", "K": "1", "seed": 2, "n_support": 4, "fit_s": 11.06, "acc": 0.8226484498160799, "macro_f1": 0.7467706294082399, "params": 1121316}
+{"method": "abl-train-only-graph", "K": "1", "seed": 3, "n_support": 4, "fit_s": 11.45, "acc": 0.8477404098791382, "macro_f1": 0.802536871595487, "params": 1121316}
+{"method": "abl-train-only-graph", "K": "4", "seed": 1, "n_support": 16, "fit_s": 11.43, "acc": 0.911849710982659, "macro_f1": 0.9022397621230669, "params": 1121316}
+{"method": "abl-train-only-graph", "K": "4", "seed": 2, "n_support": 16, "fit_s": 11.35, "acc": 0.9136889122438255, "macro_f1": 0.8967398269880115, "params": 1121316}
+{"method": "abl-train-only-graph", "K": "4", "seed": 3, "n_support": 16, "fit_s": 11.33, "acc": 0.8977929584866001, "macro_f1": 0.8717724907267591, "params": 1121316}

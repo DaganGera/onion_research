@@ -1,0 +1,42 @@
+{
+ "healthy red onion": [
+  "a firm red onion bulb with smooth shiny purple-red skin",
+  "a clean reddish-purple onion with dry papery outer skin and no spots",
+  "a round red onion with uniform deep purple colour",
+  "fresh red onions with intact glossy skin",
+  "a red onion bulb with a dry neck and thin roots, no damage",
+  "a pile of clean healthy red onions",
+  "a red onion with even colour and no dark patches",
+  "a smooth unblemished red onion on a cloth"
+ ],
+ "unhealthy red onion": [
+  "a red onion covered with black powdery mould",
+  "a rotting red onion with dark brown soft patches",
+  "a red onion with peeling cracked skin and black spots",
+  "a shrivelled red onion with dry flaking layers and decay",
+  "red onions with black sooty mould between the scales",
+  "a damaged red onion with a sprouting neck and rotten spots",
+  "a pile of spoiled red onions with dark lesions",
+  "a discoloured red onion with bruises and mouldy areas"
+ ],
+ "healthy white onion": [
+  "a firm white onion bulb with smooth clean white skin",
+  "a clean white onion with no spots or stains",
+  "a round white onion with bright uniform skin",
+  "fresh white onions with intact glossy skin",
+  "a white onion with a dry neck and thin roots, no damage",
+  "a pile of clean healthy white onions",
+  "a white onion with even colour and no dark patches",
+  "a smooth unblemished white onion on a cloth"
+ ],
+ "unhealthy white onion": [
+  "a white onion with black mould patches on its skin",
+  "a white onion with dark brown rotten spots",
+  "white onions stained with black sooty mould",
+  "a white onion with a soft decaying brown area",
+  "a white onion with peeling dirty skin and black spots",
+  "a sprouting white onion with a long neck and dark lesions",
+  "a pile of spoiled white onions with black mould",
+  "a bruised discoloured white onion with mouldy areas"
+ ]
+}

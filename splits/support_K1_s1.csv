@@ -1,0 +1,5 @@
+path,label,class_name,health,variety,quantity,md5,phash,w,h,group,group_old
+1. Healthy/1. Red Onion/1. Single/Onion06753.jpg,0,healthy red onion,healthy,red onion,single,aed166c576ef867e59a42791c5e74019,f3b44ca433f10cce,576,768,253,590
+2. Unhealthy/1. Red Onion/1. Single/Onion12857.jpg,1,unhealthy red onion,unhealthy,red onion,single,30eeda8de91afa637f8fcceb5e16bb3f,e67a986609ba26d9,1024,768,346,845
+1. Healthy/2. White Onion/1. Single/Onion09566.jpg,2,healthy white onion,healthy,white onion,single,78ee74aff1ac601d68e3fea4c7558e70,cd1933c6c9718e0f,1024,768,441,1069
+2. Unhealthy/2. White Onion/1. Single/Onion14431.jpg,3,unhealthy white onion,unhealthy,white onion,single,f86567695fc7be33e2022efccdb2a052,b9e9461e6161dc93,1024,768,813,1901

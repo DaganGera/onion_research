@@ -1,0 +1,2 @@
+method,K,seed,n_support,fit_s,acc,macro_f1
+ZeroShot-bioclip,1,1,4,0.0,0.4220966894377299,0.3216863796007816

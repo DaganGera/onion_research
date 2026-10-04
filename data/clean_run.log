@@ -1,0 +1,34 @@
+[1] integrity + MD5 for 12260 photos
+    unreadable: 0
+[3] candidate pairs
+    1406308 candidate pairs
+[4a] SIFT for 12260 photos (6 workers)
+[4b] GPU matching
+    pairs with >= 8 mutual ratio-test matches: 433150
+[5] RANSAC verification
+    verified same-scene pairs: 79194 (cross-class: 0)
+[6] groups
+[7] removals
+# Dataset cleaning report (src/00_clean_dataset.py)
+
+- photos before: **12260**; removed: **584**; kept: **11676**
+- capture-session groups before: 2256; after merging verified re-shots: **915**
+- candidate pairs (CLIP >= 0.92 same class, >= 0.94 cross class): 1406308; with >= 8 matches: 433150; verified (>= 10 RANSAC inliers): 79194
+- verified pairs that were in DIFFERENT old groups (the re-shots the old grouping missed): **29465**
+
+## Removed, by reason
+
+| reason                                          |   photos |
+|:------------------------------------------------|---------:|
+| near-identical re-shot (verified, CLIP >= 0.99) |      557 |
+| exact duplicate (identical bytes)               |       27 |
+
+## Kept photos per class
+
+| class_name            |   photos |   groups |   largest group |
+|:----------------------|---------:|---------:|----------------:|
+| healthy red onion     |     3809 |      267 |            2862 |
+| healthy white onion   |     3982 |      363 |            1900 |
+| unhealthy red onion   |     1915 |      120 |            1628 |
+| unhealthy white onion |     1970 |      165 |            1475 |
+

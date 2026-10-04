@@ -1,0 +1,6 @@
+{"method": "abl-no-gate", "K": "1", "seed": 1, "n_support": 4, "fit_s": 10.92, "acc": 0.8568050446663164, "macro_f1": 0.8279882867105075, "params": 1121316}
+{"method": "abl-no-gate", "K": "1", "seed": 2, "n_support": 4, "fit_s": 10.86, "acc": 0.8319758276405675, "macro_f1": 0.8082170301926987, "params": 1121316}
+{"method": "abl-no-gate", "K": "1", "seed": 3, "n_support": 4, "fit_s": 10.7, "acc": 0.8343405149763531, "macro_f1": 0.781464092879637, "params": 1121316}
+{"method": "abl-no-gate", "K": "4", "seed": 1, "n_support": 16, "fit_s": 10.52, "acc": 0.911849710982659, "macro_f1": 0.9009666045539887, "params": 1121316}
+{"method": "abl-no-gate", "K": "4", "seed": 2, "n_support": 16, "fit_s": 10.82, "acc": 0.8737519705727799, "macro_f1": 0.8420163764353733, "params": 1121316}
+{"method": "abl-no-gate", "K": "4", "seed": 3, "n_support": 16, "fit_s": 10.83, "acc": 0.8531266421439831, "macro_f1": 0.815307347676221, "params": 1121316}

@@ -1,0 +1,5 @@
+class_name,pool_imgs,pool_communities,pool_pile_share,test_imgs,test_pile_share,purged_from_test
+healthy red onion,744,159,0.169,2532,0.19,533
+healthy white onion,833,99,0.247,2696,0.217,453
+unhealthy red onion,401,92,0.474,1100,0.301,414
+unhealthy white onion,410,65,0.493,1284,0.403,276

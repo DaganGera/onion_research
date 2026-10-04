@@ -1,0 +1,18 @@
+{
+  "id": "marcbenjamessamuel/onion-fewshot-clean",
+  "title": "onion-fewshot-clean",
+  "code_file": "onion_pipeline.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [
+    "marcbenjamessamuel/onion-bulbs-images",
+    "marcbenjamessamuel/onion-fewshot-work",
+    "marcbenjamessamuel/onion-third-party"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}
