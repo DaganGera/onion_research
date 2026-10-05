@@ -4,7 +4,7 @@ import sys
 import torch
 import torchvision.transforms as T
 
-from common import DEVICE, ROOT, l2n
+from common import DEVICE, PAD_SQUARE, ROOT, l2n, pad_square
 
 CLIP_MEAN, CLIP_STD = (0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)
 IMNET_MEAN, IMNET_STD = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
@@ -14,6 +14,7 @@ def _tf(mean, std, aug=False, normalize=True):
     ops = ([T.RandomResizedCrop(224, scale=(0.5, 1.0), interpolation=T.InterpolationMode.BICUBIC),
             T.RandomHorizontalFlip()] if aug else
            [T.Resize(224, interpolation=T.InterpolationMode.BICUBIC), T.CenterCrop(224)])
+    ops = ([T.Lambda(pad_square)] if PAD_SQUARE else []) + ops
     ops += [T.ToTensor()] + ([T.Normalize(mean, std)] if normalize else [])
     return T.Compose(ops)
 

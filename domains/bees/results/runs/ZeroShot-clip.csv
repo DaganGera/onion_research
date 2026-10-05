@@ -1,0 +1,2 @@
+method,K,seed,n_support,fit_s,acc,macro_f1
+ZeroShot-clip,1,1,2,0.0,0.7162338313446305,0.5611163940460743

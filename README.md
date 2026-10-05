@@ -62,14 +62,30 @@ each keeps the best of 10 validation checkpoints. Macro-F1, mean ± std over 3 s
 | Tip-Adapter-F | 0.759 ± .033 | 0.808 ± .054 | 0.827 ± .026 | 0.869 ± .054 | 0.923 ± .006 | 0.935 ± .012 |
 | TaskRes | 0.741 ± .097 | 0.779 ± .043 | 0.837 ± .018 | 0.880 ± .047 | 0.942 ± .010 | 0.972 ± .014 |
 | CLAP | 0.704 ± .099 | 0.759 ± .026 | 0.805 ± .033 | 0.885 ± .038 | 0.936 ± .011 | 0.973 ± .008 |
-| CoOp | 0.666 ± .069 | 0.706 ± .056 | 0.813 ± .048 | 0.886 ± .031 | 0.943 ± .006 | 0.976 (1 seed) |
+| CoOp | 0.666 ± .069 | 0.706 ± .056 | 0.813 ± .048 | 0.886 ± .031 | 0.943 ± .006 | 0.968 ± .015 |
 
 Best-epoch selection helps some methods (TaskRes +5 points and GraphAdapter +5 points at K = 1, Tip-Adapter-F +4
 points with all data). After it, **PRGA + DINOv2 cache is still best at K = 4, 8, 16 and with all data. At K = 1 and
 2 it is tied with the PlantCaFo-style cache** (and with GraphAdapter at K = 1): the gaps of 0.3-0.7 points are far
 inside the seed spread. Laptop and Kaggle numbers for the same code differ by up to about 2 points (GPU arithmetic),
-so compare within one table, not across them. CoOp with all photos was stopped early to free the GPU (2 of 3 seeds at
-the usual length, 1 at double length); `python 18_equal_training.py --methods coop` resumes it.
+so compare within one table, not across them. One exception to "one GPU": three CoOp runs with all photos (seed 2
+best-epoch, seed 3 both variants) were finished on a Kaggle T4 (marked `"hardware": "Kaggle T4"` in
+`results/equal_training/coop.jsonl`).
+
+## Second domain: Varroa mites on honeybees
+
+The same code was run on a second, niche domain where the sign is tiny: honeybees with and without the Varroa mite
+(VarroaDataset, 12 lab videos, split by whole video). Full write-up: [domains/bees/README.md](domains/bees/README.md).
+
+- The task is hard for every frozen-feature method: with 1-16 photos per class nothing gets far above 0.60
+  macro-F1 (chance about 0.50). Tip-Adapter-F is best at 1 shot; from 4 shots PRGA, PRGA + DINOv2 and Tip-Adapter-F
+  are within the seed spread.
+- With all training photos a fine-tuned EfficientNet is best (0.770); PRGA is the best frozen-feature method
+  (0.699, 0.725 in its default configuration).
+- Unlike on onions, OWLv2 region nodes help with all data (+4.9 points over a grid), which supports using regions
+  for tiny signs, though not yet at few shots.
+- BioCLIP was tried as a backbone and lost to CLIP on validation, so CLIP is kept. A random split would inflate
+  scores by 7-10 points.
 
 ## How it works
 
@@ -292,6 +308,8 @@ src/
   17_cost_benchmark.py      time per photo
   18_equal_training.py      fairness check: every method picks its best epoch on validation
   19_architecture_figures.py  the architecture diagrams
+  20_prepare_bees.py        bee domain: labels, video-disjoint split (DATASET=bees)
+  21_check_regions_bees.py  bee domain: do OWLv2 spot regions land on the annotated mites?
   demo.py                   train and test the final model in one go
 
   common.py      paths, classes, seeds, metrics          fewshot.py   feature store, baselines, PRGA

@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 from PIL import Image
 
-from common import C, DEVICE, RAW, RESULTS, SEEDS, SPLITS, metrics, seed_all
+from common import C, DEVICE, PAD_SQUARE, RAW, RESULTS, SEEDS, SPLITS, metrics, pad_square, seed_all
 
 MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
 STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
@@ -20,8 +20,13 @@ TRAIN_TF = T.Compose([T.RandomResizedCrop(224, scale=(0.5, 1.0)), T.RandomHorizo
 TEST_TF = T.Compose([T.Resize(224), T.CenterCrop(224), T.PILToTensor()])
 
 
+def open_rgb(p):
+    im = Image.open(RAW / p).convert("RGB")
+    return pad_square(im) if PAD_SQUARE else im
+
+
 def load_u8(paths, tf):
-    return torch.stack([tf(Image.open(RAW / p).convert("RGB")) for p in paths])
+    return torch.stack([tf(open_rgb(p)) for p in paths])
 
 
 def norm(x):
@@ -40,7 +45,7 @@ def predict(model, X, bs=256):
 
 def train_one(sup, epochs):
     model = timm.create_model("efficientnet_b0", pretrained=True, num_classes=C).to(DEVICE)
-    imgs = [Image.open(RAW / p).convert("RGB") for p in sup.path]
+    imgs = [open_rgb(p) for p in sup.path]
     y = torch.tensor(sup.label.values)
     opt = torch.optim.AdamW(model.parameters(), lr=3e-4, weight_decay=1e-2)
     steps_per_epoch = max(1, int(np.ceil(len(imgs) / 32)))

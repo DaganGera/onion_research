@@ -1,0 +1,3 @@
+path,label,video,track,frame,orig_split,mite_boxes,class_name,group
+val/videos/2017-09-25_16-03-38/2017-09-25_16-03-38.mp4-bee_id_2099-81225-1.png,0,2017-09-25_16-03-38,2017-09-25_16-03-38#2099,81225,val,[],healthy honeybee,2017-09-25_16-03-38
+val/videos/2017-09-01_3-01-01/2017-09-01_3-01-01.mp4-bee_id_2356-52755-1.png,1,2017-09-01_3-01-01,2017-09-01_3-01-01#2356,52755,val,"[[47.0, 145.0, 77.0, 177.0]]",honeybee with a varroa mite,2017-09-01_3-01-01

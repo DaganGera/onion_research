@@ -1,0 +1,14 @@
+{
+  "id": "marcbenjamessamuel/onion-coop-run",
+  "title": "onion-coop-run",
+  "code_file": "onion_coop.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["marcbenjamessamuel/onion-coop-finish"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

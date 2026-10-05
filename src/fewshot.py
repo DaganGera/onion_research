@@ -369,7 +369,7 @@ class PRGANet(nn.Module):
             e[:, :N_img, N_img:, 3] = cos_it
             e[:, N_img:, :N_img, 3] = cos_it.transpose(1, 2)
             e[:, N_img:, N_img:, 3] = cos_tt
-            nmask = torch.cat([imask, torch.ones(B, C, device=g.device)], 1)
+            nmask = torch.cat([imask, torch.ones(B, self.T.shape[0], device=g.device)], 1)
         else:
             e, nmask = e_ii, imask
         for layer in self.gnn:

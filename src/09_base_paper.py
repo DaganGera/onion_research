@@ -38,7 +38,8 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 
 from basepaper import ALL_WINDOWS, SIZE, Head
-from common import CKPT, CLASSES, CLIP_NAME, NUM_WORKERS, RAW, RESULTS, SPLITS, l2n, load_feats, metrics, seed_all
+from common import (CKPT, CLASSES, CLIP_NAME, NUM_WORKERS, PAD_SQUARE, RAW, RESULTS, SPLITS, l2n, load_feats, metrics,
+                    pad_square, seed_all)
 
 MEAN = (0.48145466, 0.4578275, 0.40821073)
 STD = (0.26862954, 0.26130258, 0.27577711)
@@ -69,7 +70,8 @@ class Support(Dataset):
         return len(self.paths)
 
     def __getitem__(self, i):
-        return AUG(Image.open(RAW / self.paths[i]).convert("RGB")), self.labels[i]
+        im = Image.open(RAW / self.paths[i]).convert("RGB")
+        return AUG(pad_square(im) if PAD_SQUARE else im), self.labels[i]
 
 
 class WindowEncoder:

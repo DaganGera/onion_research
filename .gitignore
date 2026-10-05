@@ -31,3 +31,10 @@ data/clean/pairs_checked.csv
 # demo output (regenerate with src/demo.py)
 figures/demo_*.png
 results/equal_training_run.log
+
+# other domains (domains/<name>/): same rules as the top-level folders
+domains/*/data/raw/
+domains/*/data/gt.csv
+domains/*/features/
+domains/*/checkpoints/
+domains/*/results/preds/

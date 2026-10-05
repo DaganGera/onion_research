@@ -1,0 +1,4 @@
+{'method': '1NN-clip', 'split': 'grouped', 'acc': 0.697182392459641, 'macro_f1': 0.5560538658600938}
+{'method': '1NN-clip', 'split': 'random', 'acc': 0.7251579264012835, 'macro_f1': 0.6243671689291327}
+{'method': 'LinearProbe-clip', 'split': 'grouped', 'acc': 0.7808081820916475, 'macro_f1': 0.5774035240018602}
+{'method': 'LinearProbe-clip', 'split': 'random', 'acc': 0.8180086232828637, 'macro_f1': 0.6749644226815459}

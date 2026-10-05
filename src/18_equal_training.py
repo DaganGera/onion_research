@@ -10,6 +10,7 @@ treatment and re-runs everything on one GPU, so hardware differences cannot expl
   PRGA and PRGA + DINOv2 are re-run unchanged (they already select their checkpoint on validation).
 
   python 18_equal_training.py [--methods tipf clipadapter taskres clap graphadapter cafo prga coop] [--shots ...]
+                              [--seeds ...] [--backbone clip|bioclip]
 Output: results/equal_training/<method>.jsonl (resumable), results/equal_training.csv / .md
 """
 import argparse
@@ -38,6 +39,12 @@ def make(method, K, T):
             "coop": lambda: CoOp(K)}[method]()
 
 
+def val_f1(va, scores):
+    """validation macro-F1 (used to choose the backbone, never the test set). The PRGA + DINOv2 a2/b2 are tuned on
+    this same validation set, so its value is optimistic; compare backbones within one method."""
+    return metrics(va.y.numpy(), scores.argmax(1).numpy())["macro_f1"] if len(va) else float("nan")
+
+
 def done_runs(log):
     if not log.exists():
         return set()
@@ -56,21 +63,24 @@ def main():
     ap.add_argument("--methods", nargs="+",
                     default=["tipf", "clipadapter", "taskres", "clap", "graphadapter", "cafo", "prga", "coop"])
     ap.add_argument("--shots", nargs="+", default=ALL_K)
+    ap.add_argument("--seeds", nargs="+", type=int, default=SEEDS)
+    ap.add_argument("--backbone", default="clip", choices=["clip", "bioclip"])
     a = ap.parse_args()
-    T = load_text("clip", "desc")
-    store = Store("clip", second="dinov2", need=("global", "aug", "regions"))
+    T = load_text(a.backbone, "desc")
+    store = Store(a.backbone, second="dinov2", need=("global", "aug", "regions"))
+    tag = "" if a.backbone == "clip" else f" [{a.backbone}]"
     te = store.batch(pd.read_csv(SPLITS / "test80.csv"))
     y_te = te.y.numpy()
 
     for method in a.methods:
-        log = OUT / f"{method}.jsonl"
+        log = OUT / f"{method}{'' if a.backbone == 'clip' else '_' + a.backbone}.jsonl"
         done = done_runs(log)
         for K in a.shots:
-            for s in SEEDS:
+            for s in a.seeds:
                 tr = store.batch(pd.read_csv(SPLITS / f"support_K{K}_s{s}.csv"), with_aug=True)
                 va = store.batch(pd.read_csv(SPLITS / f"val_K{K}_s{s}.csv"))
                 if method == "prga":
-                    if ("PRGA", "as-is", K, s) in done:
+                    if ("PRGA" + tag, "as-is", K, s) in done:
                         continue
                     seed_all(s)
                     t0 = time.time()
@@ -78,14 +88,17 @@ def main():
                     base = dino.prga_logits(m, te)
                     k2 = dino.dino_keys(tr, finetune=True)
                     L = dino.onehot(tr.y)
-                    a2, b2 = dino.tune(dino.prga_logits(m, va), va.g2, k2, L, va.y)
+                    base_v = dino.prga_logits(m, va)
+                    a2, b2 = dino.tune(base_v, va.g2, k2, L, va.y)
                     fit_s = time.time() - t0
-                    for name, logits in (("PRGA", base), ("PRGA + DINOv2 cache", dino.fused(base, te.g2, k2, L, a2, b2))):
+                    for name, logits, lv in (("PRGA" + tag, base, base_v),
+                                             ("PRGA + DINOv2 cache" + tag, dino.fused(base, te.g2, k2, L, a2, b2),
+                                              dino.fused(base_v, va.g2, k2, L, a2, b2))):
                         write(log, method=name, variant="as-is", K=K, seed=s, epochs=60, best_epoch=-1,
-                              fit_s=fit_s, **metrics(y_te, logits.argmax(1).numpy()))
+                              fit_s=fit_s, val_macro_f1=val_f1(va, lv), **metrics(y_te, logits.argmax(1).numpy()))
                     continue
                 for variant in ("last-epoch", "best-epoch"):
-                    if (LABEL[method], variant, K, s) in done:
+                    if (LABEL[method] + tag, variant, K, s) in done:
                         continue
                     seed_all(s)
                     m = make(method, K, T)
@@ -96,9 +109,10 @@ def main():
                     m.fit(tr, va)
                     fit_s = time.time() - t0
                     pred = m.predict(te).argmax(1).numpy()
-                    write(log, method=LABEL[method], variant=variant, K=K, seed=s, epochs=m.epochs,
+                    vf1 = val_f1(va, m.predict(va))
+                    write(log, method=LABEL[method] + tag, variant=variant, K=K, seed=s, epochs=m.epochs,
                           best_epoch=getattr(m, "best_epoch", m.epochs) if variant == "best-epoch" else m.epochs,
-                          fit_s=fit_s, **metrics(y_te, pred))
+                          fit_s=fit_s, val_macro_f1=vf1, **metrics(y_te, pred))
     summarise()
 
 

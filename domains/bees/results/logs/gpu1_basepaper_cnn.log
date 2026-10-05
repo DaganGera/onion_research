@@ -1,0 +1,256 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+zero-shot CLIP, 'a photo of a [CLASS]': macroF1=0.4736
+BasePaperExact             K=   1 s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4732
+BasePaperExact-bal         K=   1 s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4732
+BasePaperExact-desc        K=   1 s=1 L=1 ep= 0 a=5 b=7 val=0.551 test macroF1=0.5568
+BasePaperExact-A1          K=   1 s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4732
+BasePaperExact-A2          K=   1 s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4732
+BasePaperExact-noEdges     K=   1 s=1 L=1 ep= 5 a=96 b=9 val=0.424 test macroF1=0.2644
+BasePaperExact-aggFig1     K=   1 s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4732
+BasePaperExact-legacyWin   K=   1 s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4732
+BasePaperExact-rhoLastId   K=   1 s=1 L=1 ep= 1 a=96 b=7 val=0.488 test macroF1=0.3228
+BasePaperExact-noGraph     K=   1 s=1 L=1 ep=12 a=5 b=5 val=0.592 test macroF1=0.5159
+--- K=1 seed=1 done in 46s
+BasePaperExact             K=   1 s=2 L=1 ep= 0 a=0.1 b=2 val=0.384 test macroF1=0.4724
+BasePaperExact-bal         K=   1 s=2 L=1 ep= 0 a=0.1 b=2 val=0.384 test macroF1=0.4724
+BasePaperExact-desc        K=   1 s=2 L=1 ep= 0 a=24 b=1 val=0.555 test macroF1=0.5670
+BasePaperExact-A1          K=   1 s=2 L=1 ep= 0 a=0.1 b=2 val=0.384 test macroF1=0.4724
+BasePaperExact-A2          K=   1 s=2 L=1 ep= 0 a=0.1 b=2 val=0.384 test macroF1=0.4724
+BasePaperExact-noEdges     K=   1 s=2 L=1 ep= 5 a=96 b=9 val=0.428 test macroF1=0.3035
+BasePaperExact-aggFig1     K=   1 s=2 L=1 ep= 0 a=0.1 b=2 val=0.384 test macroF1=0.4724
+BasePaperExact-legacyWin   K=   1 s=2 L=1 ep= 0 a=0.1 b=2 val=0.384 test macroF1=0.4724
+BasePaperExact-rhoLastId   K=   1 s=2 L=1 ep= 1 a=96 b=7 val=0.472 test macroF1=0.3469
+BasePaperExact-noGraph     K=   1 s=2 L=1 ep= 4 a=24 b=4 val=0.620 test macroF1=0.5273
+--- K=1 seed=2 done in 39s
+BasePaperExact             K=   1 s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4735
+BasePaperExact-bal         K=   1 s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4735
+BasePaperExact-desc        K=   1 s=3 L=1 ep= 0 a=2 b=3 val=0.497 test macroF1=0.5692
+BasePaperExact-A1          K=   1 s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4735
+BasePaperExact-A2          K=   1 s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4735
+BasePaperExact-noEdges     K=   1 s=3 L=1 ep= 5 a=96 b=9 val=0.466 test macroF1=0.5214
+BasePaperExact-aggFig1     K=   1 s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4735
+BasePaperExact-legacyWin   K=   1 s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.384 test macroF1=0.4735
+BasePaperExact-rhoLastId   K=   1 s=3 L=1 ep= 3 a=96 b=7 val=0.488 test macroF1=0.5460
+BasePaperExact-noGraph     K=   1 s=3 L=1 ep=10 a=16 b=7 val=0.511 test macroF1=0.5606
+--- K=1 seed=3 done in 36s
+BasePaperExact             K=   2 s=1 L=1 ep= 0 a=96 b=9 val=0.476 test macroF1=0.5506
+BasePaperExact-bal         K=   2 s=1 L=1 ep= 0 a=96 b=9 val=0.457 test macroF1=0.5418
+BasePaperExact-desc        K=   2 s=1 L=2 ep= 0 a=24 b=9 val=0.548 test macroF1=0.6278
+BasePaperExact-A1          K=   2 s=1 L=1 ep= 0 a=96 b=9 val=0.476 test macroF1=0.5506
+BasePaperExact-A2          K=   2 s=1 L=1 ep= 0 a=96 b=9 val=0.476 test macroF1=0.5506
+BasePaperExact-noEdges     K=   2 s=1 L=2 ep= 6 a=32 b=2 val=0.523 test macroF1=0.6060
+BasePaperExact-aggFig1     K=   2 s=1 L=1 ep= 0 a=96 b=9 val=0.476 test macroF1=0.5506
+BasePaperExact-legacyWin   K=   2 s=1 L=1 ep= 0 a=96 b=9 val=0.476 test macroF1=0.5506
+BasePaperExact-rhoLastId   K=   2 s=1 L=1 ep= 2 a=32 b=7 val=0.593 test macroF1=0.6181
+BasePaperExact-noGraph     K=   2 s=1 L=1 ep=13 a=96 b=2 val=0.682 test macroF1=0.5916
+--- K=2 seed=1 done in 41s
+BasePaperExact             K=   2 s=2 L=1 ep= 5 a=96 b=9 val=0.431 test macroF1=0.2978
+BasePaperExact-bal         K=   2 s=2 L=1 ep= 5 a=96 b=9 val=0.415 test macroF1=0.2783
+BasePaperExact-desc        K=   2 s=2 L=1 ep= 4 a=3 b=7 val=0.608 test macroF1=0.5423
+BasePaperExact-A1          K=   2 s=2 L=1 ep= 5 a=96 b=9 val=0.432 test macroF1=0.2993
+BasePaperExact-A2          K=   2 s=2 L=1 ep= 5 a=96 b=9 val=0.431 test macroF1=0.2981
+BasePaperExact-noEdges     K=   2 s=2 L=2 ep= 5 a=96 b=9 val=0.480 test macroF1=0.3602
+BasePaperExact-aggFig1     K=   2 s=2 L=1 ep= 5 a=96 b=9 val=0.431 test macroF1=0.2988
+BasePaperExact-legacyWin   K=   2 s=2 L=1 ep= 5 a=96 b=7 val=0.433 test macroF1=0.3005
+BasePaperExact-rhoLastId   K=   2 s=2 L=1 ep= 1 a=32 b=9 val=0.500 test macroF1=0.3901
+BasePaperExact-noGraph     K=   2 s=2 L=1 ep=18 a=1 b=9 val=0.576 test macroF1=0.5175
+--- K=2 seed=2 done in 42s
+BasePaperExact             K=   2 s=3 L=1 ep= 0 a=96 b=9 val=0.531 test macroF1=0.4347
+BasePaperExact-bal         K=   2 s=3 L=1 ep= 0 a=96 b=7 val=0.528 test macroF1=0.4329
+BasePaperExact-desc        K=   2 s=3 L=1 ep= 3 a=8 b=7 val=0.626 test macroF1=0.5561
+BasePaperExact-A1          K=   2 s=3 L=1 ep= 0 a=96 b=9 val=0.531 test macroF1=0.4347
+BasePaperExact-A2          K=   2 s=3 L=1 ep= 0 a=96 b=9 val=0.531 test macroF1=0.4347
+BasePaperExact-noEdges     K=   2 s=3 L=1 ep= 5 a=48 b=1 val=0.613 test macroF1=0.5326
+BasePaperExact-aggFig1     K=   2 s=3 L=1 ep= 0 a=96 b=9 val=0.531 test macroF1=0.4347
+BasePaperExact-legacyWin   K=   2 s=3 L=1 ep= 0 a=96 b=9 val=0.531 test macroF1=0.4347
+BasePaperExact-rhoLastId   K=   2 s=3 L=1 ep= 1 a=12 b=4 val=0.605 test macroF1=0.5299
+BasePaperExact-noGraph     K=   2 s=3 L=1 ep=14 a=12 b=4 val=0.622 test macroF1=0.5378
+--- K=2 seed=3 done in 41s
+BasePaperExact             K=   4 s=1 L=1 ep= 0 a=64 b=1 val=0.497 test macroF1=0.5385
+BasePaperExact-bal         K=   4 s=1 L=1 ep= 0 a=96 b=2 val=0.496 test macroF1=0.5522
+BasePaperExact-desc        K=   4 s=1 L=1 ep= 1 a=0.5 b=3 val=0.494 test macroF1=0.5630
+BasePaperExact-A1          K=   4 s=1 L=1 ep= 0 a=64 b=1 val=0.497 test macroF1=0.5385
+BasePaperExact-A2          K=   4 s=1 L=1 ep= 0 a=64 b=1 val=0.497 test macroF1=0.5385
+BasePaperExact-noEdges     K=   4 s=1 L=2 ep= 4 a=8 b=3 val=0.506 test macroF1=0.5449
+BasePaperExact-aggFig1     K=   4 s=1 L=1 ep= 0 a=64 b=1 val=0.497 test macroF1=0.5385
+BasePaperExact-legacyWin   K=   4 s=1 L=1 ep= 0 a=64 b=1 val=0.497 test macroF1=0.5385
+BasePaperExact-rhoLastId   K=   4 s=1 L=1 ep= 4 a=48 b=0.5 val=0.513 test macroF1=0.5377
+BasePaperExact-noGraph     K=   4 s=1 L=1 ep=19 a=48 b=5 val=0.559 test macroF1=0.5383
+--- K=4 seed=1 done in 53s
+BasePaperExact             K=   4 s=2 L=1 ep= 0 a=48 b=4 val=0.464 test macroF1=0.5798
+BasePaperExact-bal         K=   4 s=2 L=1 ep= 0 a=96 b=9 val=0.461 test macroF1=0.5796
+BasePaperExact-desc        K=   4 s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.492 test macroF1=0.5611
+BasePaperExact-A1          K=   4 s=2 L=1 ep= 0 a=48 b=4 val=0.464 test macroF1=0.5798
+BasePaperExact-A2          K=   4 s=2 L=1 ep= 0 a=48 b=4 val=0.464 test macroF1=0.5798
+BasePaperExact-noEdges     K=   4 s=2 L=1 ep= 6 a=32 b=0.5 val=0.479 test macroF1=0.5746
+BasePaperExact-aggFig1     K=   4 s=2 L=1 ep= 0 a=48 b=4 val=0.464 test macroF1=0.5798
+BasePaperExact-legacyWin   K=   4 s=2 L=1 ep= 0 a=48 b=4 val=0.464 test macroF1=0.5798
+BasePaperExact-rhoLastId   K=   4 s=2 L=1 ep= 1 a=32 b=0.5 val=0.486 test macroF1=0.5572
+BasePaperExact-noGraph     K=   4 s=2 L=1 ep=17 a=3 b=1 val=0.498 test macroF1=0.5535
+--- K=4 seed=2 done in 51s
+BasePaperExact             K=   4 s=3 L=1 ep= 0 a=64 b=4 val=0.632 test macroF1=0.5361
+BasePaperExact-bal         K=   4 s=3 L=1 ep= 0 a=96 b=9 val=0.629 test macroF1=0.5341
+BasePaperExact-desc        K=   4 s=3 L=1 ep= 0 a=12 b=4 val=0.671 test macroF1=0.6098
+BasePaperExact-A1          K=   4 s=3 L=1 ep= 0 a=64 b=4 val=0.632 test macroF1=0.5361
+BasePaperExact-A2          K=   4 s=3 L=1 ep= 0 a=64 b=4 val=0.632 test macroF1=0.5361
+BasePaperExact-noEdges     K=   4 s=3 L=2 ep= 4 a=16 b=3 val=0.664 test macroF1=0.5813
+BasePaperExact-aggFig1     K=   4 s=3 L=1 ep= 0 a=64 b=4 val=0.632 test macroF1=0.5361
+BasePaperExact-legacyWin   K=   4 s=3 L=1 ep= 5 a=64 b=1 val=0.638 test macroF1=0.5586
+BasePaperExact-rhoLastId   K=   4 s=3 L=1 ep= 6 a=48 b=1 val=0.666 test macroF1=0.6023
+BasePaperExact-noGraph     K=   4 s=3 L=1 ep= 7 a=12 b=4 val=0.666 test macroF1=0.6088
+--- K=4 seed=3 done in 51s
+BasePaperExact             K=   8 s=1 L=1 ep=12 a=12 b=7 val=0.593 test macroF1=0.4648
+BasePaperExact-bal         K=   8 s=1 L=1 ep= 5 a=96 b=9 val=0.489 test macroF1=0.3228
+BasePaperExact-desc        K=   8 s=1 L=2 ep=11 a=5 b=3 val=0.659 test macroF1=0.5483
+BasePaperExact-A1          K=   8 s=1 L=1 ep=13 a=16 b=9 val=0.595 test macroF1=0.4683
+BasePaperExact-A2          K=   8 s=1 L=1 ep=12 a=8 b=9 val=0.598 test macroF1=0.4749
+BasePaperExact-noEdges     K=   8 s=1 L=1 ep= 5 a=12 b=2 val=0.649 test macroF1=0.5313
+BasePaperExact-aggFig1     K=   8 s=1 L=1 ep=13 a=12 b=7 val=0.594 test macroF1=0.4667
+BasePaperExact-legacyWin   K=   8 s=1 L=1 ep=12 a=12 b=4 val=0.635 test macroF1=0.5169
+BasePaperExact-rhoLastId   K=   8 s=1 L=1 ep= 3 a=12 b=2 val=0.658 test macroF1=0.5380
+BasePaperExact-noGraph     K=   8 s=1 L=1 ep=17 a=8 b=7 val=0.651 test macroF1=0.5372
+--- K=8 seed=1 done in 84s
+BasePaperExact             K=   8 s=2 L=1 ep=11 a=12 b=4 val=0.665 test macroF1=0.5720
+BasePaperExact-bal         K=   8 s=2 L=1 ep= 8 a=0.1 b=0.5 val=0.382 test macroF1=0.4735
+BasePaperExact-desc        K=   8 s=2 L=1 ep= 7 a=8 b=4 val=0.666 test macroF1=0.5657
+BasePaperExact-A1          K=   8 s=2 L=1 ep=10 a=24 b=2 val=0.662 test macroF1=0.5721
+BasePaperExact-A2          K=   8 s=2 L=1 ep=10 a=12 b=4 val=0.663 test macroF1=0.5748
+BasePaperExact-noEdges     K=   8 s=2 L=1 ep= 6 a=64 b=0.5 val=0.664 test macroF1=0.5671
+BasePaperExact-aggFig1     K=   8 s=2 L=1 ep=11 a=12 b=4 val=0.664 test macroF1=0.5673
+BasePaperExact-legacyWin   K=   8 s=2 L=1 ep= 9 a=12 b=5 val=0.664 test macroF1=0.5495
+BasePaperExact-rhoLastId   K=   8 s=2 L=1 ep= 4 a=24 b=9 val=0.662 test macroF1=0.5678
+BasePaperExact-noGraph     K=   8 s=2 L=1 ep= 2 a=96 b=0.5 val=0.675 test macroF1=0.5491
+--- K=8 seed=2 done in 90s
+BasePaperExact             K=   8 s=3 L=1 ep= 6 a=96 b=0.5 val=0.591 test macroF1=0.5530
+BasePaperExact-bal         K=   8 s=3 L=1 ep= 0 a=96 b=5 val=0.584 test macroF1=0.5279
+BasePaperExact-desc        K=   8 s=3 L=1 ep= 3 a=96 b=3 val=0.629 test macroF1=0.5834
+BasePaperExact-A1          K=   8 s=3 L=1 ep= 6 a=96 b=0.5 val=0.591 test macroF1=0.5511
+BasePaperExact-A2          K=   8 s=3 L=1 ep= 5 a=96 b=1 val=0.609 test macroF1=0.5633
+BasePaperExact-noEdges     K=   8 s=3 L=1 ep= 1 a=96 b=4 val=0.630 test macroF1=0.5528
+BasePaperExact-aggFig1     K=   8 s=3 L=1 ep= 6 a=96 b=0.5 val=0.588 test macroF1=0.5499
+BasePaperExact-legacyWin   K=   8 s=3 L=1 ep= 4 a=96 b=1 val=0.619 test macroF1=0.5595
+BasePaperExact-rhoLastId   K=   8 s=3 L=1 ep= 7 a=96 b=0.5 val=0.597 test macroF1=0.5505
+BasePaperExact-noGraph     K=   8 s=3 L=1 ep= 3 a=48 b=9 val=0.630 test macroF1=0.5722
+--- K=8 seed=3 done in 89s
+BasePaperExact             K=  16 s=1 L=1 ep= 1 a=12 b=4 val=0.693 test macroF1=0.5387
+BasePaperExact-bal         K=  16 s=1 L=1 ep= 5 a=96 b=9 val=0.447 test macroF1=0.2588
+BasePaperExact-desc        K=  16 s=1 L=1 ep= 8 a=3 b=5 val=0.713 test macroF1=0.5682
+BasePaperExact-A1          K=  16 s=1 L=1 ep= 1 a=12 b=4 val=0.694 test macroF1=0.5385
+BasePaperExact-A2          K=  16 s=1 L=1 ep= 1 a=12 b=4 val=0.693 test macroF1=0.5401
+BasePaperExact-noEdges     K=  16 s=1 L=1 ep= 1 a=12 b=9 val=0.637 test macroF1=0.5001
+BasePaperExact-aggFig1     K=  16 s=1 L=1 ep= 1 a=16 b=2 val=0.693 test macroF1=0.5498
+BasePaperExact-legacyWin   K=  16 s=1 L=1 ep= 1 a=8 b=5 val=0.696 test macroF1=0.5462
+BasePaperExact-rhoLastId   K=  16 s=1 L=2 ep= 1 a=16 b=2 val=0.693 test macroF1=0.5498
+BasePaperExact-noGraph     K=  16 s=1 L=1 ep=13 a=8 b=9 val=0.705 test macroF1=0.5675
+--- K=16 seed=1 done in 133s
+BasePaperExact             K=  16 s=2 L=2 ep= 5 a=5 b=9 val=0.633 test macroF1=0.5221
+BasePaperExact-bal         K=  16 s=2 L=1 ep= 0 a=96 b=9 val=0.479 test macroF1=0.3109
+BasePaperExact-desc        K=  16 s=2 L=1 ep= 1 a=3 b=9 val=0.654 test macroF1=0.5445
+BasePaperExact-A1          K=  16 s=2 L=1 ep= 4 a=5 b=9 val=0.634 test macroF1=0.5254
+BasePaperExact-A2          K=  16 s=2 L=2 ep= 5 a=5 b=9 val=0.634 test macroF1=0.5220
+BasePaperExact-noEdges     K=  16 s=2 L=1 ep= 5 a=5 b=4 val=0.640 test macroF1=0.5267
+BasePaperExact-aggFig1     K=  16 s=2 L=1 ep= 4 a=5 b=9 val=0.633 test macroF1=0.5254
+BasePaperExact-legacyWin   K=  16 s=2 L=2 ep= 5 a=3 b=9 val=0.656 test macroF1=0.5449
+BasePaperExact-rhoLastId   K=  16 s=2 L=2 ep= 5 a=5 b=5 val=0.644 test macroF1=0.5291
+BasePaperExact-noGraph     K=  16 s=2 L=1 ep=11 a=8 b=7 val=0.693 test macroF1=0.5618
+--- K=16 seed=2 done in 140s
+BasePaperExact             K=  16 s=3 L=1 ep= 1 a=5 b=7 val=0.678 test macroF1=0.5475
+BasePaperExact-bal         K=  16 s=3 L=1 ep= 0 a=96 b=9 val=0.497 test macroF1=0.3456
+BasePaperExact-desc        K=  16 s=3 L=2 ep= 2 a=2 b=5 val=0.690 test macroF1=0.5730
+BasePaperExact-A1          K=  16 s=3 L=1 ep= 1 a=5 b=7 val=0.679 test macroF1=0.5476
+BasePaperExact-A2          K=  16 s=3 L=2 ep= 1 a=5 b=7 val=0.678 test macroF1=0.5473
+BasePaperExact-noEdges     K=  16 s=3 L=2 ep= 6 a=5 b=9 val=0.672 test macroF1=0.5391
+BasePaperExact-aggFig1     K=  16 s=3 L=1 ep= 1 a=5 b=7 val=0.678 test macroF1=0.5475
+BasePaperExact-legacyWin   K=  16 s=3 L=1 ep= 1 a=5 b=9 val=0.681 test macroF1=0.5433
+BasePaperExact-rhoLastId   K=  16 s=3 L=2 ep= 1 a=5 b=7 val=0.678 test macroF1=0.5475
+BasePaperExact-noGraph     K=  16 s=3 L=1 ep=13 a=5 b=9 val=0.692 test macroF1=0.5686
+--- K=16 seed=3 done in 127s
+BasePaperExact             K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-bal         K=full s=1 L=1 ep= 1 a=96 b=9 val=0.715 test macroF1=0.5714
+BasePaperExact-desc        K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-A1          K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-A2          K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-noEdges     K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-aggFig1     K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-legacyWin   K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-rhoLastId   K=full s=1 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-noGraph     K=full s=1 L=1 ep= 6 a=2 b=5 val=0.686 test macroF1=0.5790
+--- K=full seed=1 done in 5827s
+BasePaperExact             K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-bal         K=full s=2 L=2 ep= 1 a=96 b=9 val=0.684 test macroF1=0.5733
+BasePaperExact-desc        K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-A1          K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-A2          K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-noEdges     K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-aggFig1     K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-legacyWin   K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-rhoLastId   K=full s=2 L=1 ep= 0 a=0.1 b=0.5 val=0.446 test macroF1=0.4272
+BasePaperExact-noGraph     K=full s=2 L=1 ep=16 a=16 b=5 val=0.757 test macroF1=0.6306
+--- K=full seed=2 done in 5819s
+BasePaperExact             K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-bal         K=full s=3 L=2 ep= 2 a=32 b=4 val=0.613 test macroF1=0.5497
+BasePaperExact-desc        K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-A1          K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-A2          K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-noEdges     K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-aggFig1     K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-legacyWin   K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-rhoLastId   K=full s=3 L=1 ep= 0 a=0.1 b=0.5 val=0.449 test macroF1=0.4272
+BasePaperExact-noGraph     K=full s=3 L=1 ep=14 a=1 b=5 val=0.686 test macroF1=0.6349
+--- K=full seed=3 done in 5819s
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '1', 'seed': 1, 'n_support': 2, 'acc': 0.3958688458838865, 'macro_f1': 0.3892269060442688}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '1', 'seed': 2, 'n_support': 2, 'acc': 0.6597814098064775, 'macro_f1': 0.49813386341463284}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '1', 'seed': 3, 'n_support': 2, 'acc': 0.3158528025669307, 'macro_f1': 0.3011199054270815}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '2', 'seed': 1, 'n_support': 4, 'acc': 0.5100772084628497, 'macro_f1': 0.45941733695792053}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '2', 'seed': 2, 'n_support': 4, 'acc': 0.37751930211571244, 'macro_f1': 0.37737656802342057}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '2', 'seed': 3, 'n_support': 4, 'acc': 0.4220395066680036, 'macro_f1': 0.4021508535321918}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '4', 'seed': 1, 'n_support': 8, 'acc': 0.5602125739496641, 'macro_f1': 0.5043914500072062}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '4', 'seed': 2, 'n_support': 8, 'acc': 0.6217788027674722, 'macro_f1': 0.5682008035853258}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '4', 'seed': 3, 'n_support': 8, 'acc': 0.4762859721247368, 'macro_f1': 0.4641312034985954}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '8', 'seed': 1, 'n_support': 16, 'acc': 0.48581169156723153, 'macro_f1': 0.4641086889732113}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '8', 'seed': 2, 'n_support': 16, 'acc': 0.6395267221498044, 'macro_f1': 0.5634177454368317}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '8', 'seed': 3, 'n_support': 16, 'acc': 0.6592800561516093, 'macro_f1': 0.5510307349802835}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '16', 'seed': 1, 'n_support': 32, 'acc': 0.5189010327885291, 'macro_f1': 0.4722541550464421}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '16', 'seed': 2, 'n_support': 32, 'acc': 0.5412614057956483, 'macro_f1': 0.48660584158065245}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': '16', 'seed': 3, 'n_support': 32, 'acc': 0.4958387646645944, 'macro_f1': 0.47495471632112246}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': 'full', 'seed': 1, 'n_support': 2138, 'acc': 0.8539055449714228, 'macro_f1': 0.7842744825410057}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': 'full', 'seed': 2, 'n_support': 2138, 'acc': 0.8399679133660884, 'macro_f1': 0.7614761547905672}
+/kaggle/working/ONION/src/14_cnn_baseline.py:68: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  sched.step()
+{'method': 'EfficientNetB0-finetune', 'K': 'full', 'seed': 3, 'n_support': 2138, 'acc': 0.8366589792439587, 'macro_f1': 0.7651927102284368}

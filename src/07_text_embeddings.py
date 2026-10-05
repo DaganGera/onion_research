@@ -19,6 +19,8 @@ TEMPLATES = [
     "a cropped photo of {}.",
 ]
 NAMES = {}  # classes already read naturally: "a photo of a healthy red onion." etc.
+if (PROMPTS / "templates.json").exists():         # other domains bring their own templates
+    TEMPLATES = read_json(PROMPTS / "templates.json")
 
 
 def class_phrase(c):

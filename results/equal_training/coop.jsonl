@@ -31,3 +31,6 @@
 {"method": "CoOp", "variant": "last-epoch", "K": "full", "seed": 1, "epochs": 20, "best_epoch": 20, "fit_s": 1045.9320600032806, "acc": 0.9797687861271677, "macro_f1": 0.9758237726105157}
 {"method": "CoOp", "variant": "best-epoch", "K": "full", "seed": 1, "epochs": 40, "best_epoch": 24, "fit_s": 2074.6943547725677, "acc": 0.9800315291644771, "macro_f1": 0.9762722834494528}
 {"method": "CoOp", "variant": "last-epoch", "K": "full", "seed": 2, "epochs": 20, "best_epoch": 20, "fit_s": 1029.8150367736816, "acc": 0.9574356279558591, "macro_f1": 0.9498544039224999}
+{"method": "CoOp", "variant": "last-epoch", "K": "full", "seed": 3, "epochs": 20, "best_epoch": 20, "fit_s": 371.85660004615784, "acc": 0.9801629006831319, "macro_f1": 0.9758561647349729, "hardware": "Kaggle T4"}
+{"method": "CoOp", "variant": "best-epoch", "K": "full", "seed": 2, "epochs": 40, "best_epoch": 32, "fit_s": 737.1508309841156, "acc": 0.9576983709931687, "macro_f1": 0.9500657582124596, "hardware": "Kaggle T4"}
+{"method": "CoOp", "variant": "best-epoch", "K": "full", "seed": 3, "epochs": 40, "best_epoch": 36, "fit_s": 745.136132478714, "acc": 0.9805570152390962, "macro_f1": 0.9768483505180386, "hardware": "Kaggle T4"}

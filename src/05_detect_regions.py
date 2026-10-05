@@ -20,11 +20,14 @@ from torchvision.ops import nms
 from tqdm import tqdm
 from transformers import Owlv2ForObjectDetection, Owlv2Processor
 
-from common import DEVICE, RAW, REGIONS, load_meta, read_json, write_json
+from common import DEVICE, PROMPTS, RAW, REGIONS, load_meta, read_json, write_json
 
 OBJECT_PROMPTS = ["an onion", "an onion bulb", "a pile of onions"]
 INSTANCE_PROMPTS = ["a mouldy onion", "a rotten onion", "an onion"]
 SPOT_PROMPTS = ["black mould", "a black spot", "a rotten spot", "a brown bruise", "a sprout", "peeling skin"]
+if (PROMPTS / "owl_prompts.json").exists():      # other domains bring their own prompts
+    _p = read_json(PROMPTS / "owl_prompts.json")
+    OBJECT_PROMPTS, INSTANCE_PROMPTS, SPOT_PROMPTS = _p["object"], _p["instance"], _p["spot"]
 SYMPTOM_PROMPTS = INSTANCE_PROMPTS + SPOT_PROMPTS
 M, N_INST, N_SPOT = 4, 2, 2
 INST_THR, SPOT_THR, OBJ_THR, MAX_AREA, SPOT_MAX_AREA = 0.2, 0.06, 0.05, 0.85, 0.12

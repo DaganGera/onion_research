@@ -8,17 +8,22 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW = Path(os.environ.get("ONION_RAW", ROOT / "data/raw/onion_bulbs/Onion Image Dataset/2. Bulb"))   # Kaggle: env
-META_RAW = ROOT / "data/meta.csv"                    # audit of every photo (01_audit_photos.py)
-META_CLEAN = ROOT / "data/clean/meta_clean.csv"      # after 02_clean_dataset.py: what every later step uses
+# DATASET picks the domain. "onion" (default) uses the top-level folders; any other domain keeps the same folder layout
+# under domains/<name>/ and lists its classes in domains/<name>/classes.json.
+DATASET = os.environ.get("DATASET", "onion")
+DROOT = ROOT if DATASET == "onion" else ROOT / "domains" / DATASET
+RAW = Path(os.environ.get("ONION_RAW", ROOT / "data/raw/onion_bulbs/Onion Image Dataset/2. Bulb" if DATASET == "onion"
+                          else DROOT / "data/raw"))   # Kaggle: env
+META_RAW = DROOT / "data/meta.csv"                    # audit of every photo (01_audit_photos.py)
+META_CLEAN = DROOT / "data/clean/meta_clean.csv"      # after cleaning: what every later step uses
 META = META_CLEAN if META_CLEAN.exists() else META_RAW
-SPLITS = ROOT / "splits"
-FEATS = ROOT / "features"
-REGIONS = ROOT / "regions"
-PROMPTS = ROOT / "prompts"
-RESULTS = ROOT / "results"
-FIGURES = ROOT / "figures"
-CKPT = ROOT / "checkpoints"
+SPLITS = DROOT / "splits"
+FEATS = DROOT / "features"
+REGIONS = DROOT / "regions"
+PROMPTS = DROOT / "prompts"
+RESULTS = DROOT / "results"
+FIGURES = DROOT / "figures"
+CKPT = DROOT / "checkpoints"
 for d in (SPLITS, FEATS, REGIONS, PROMPTS, RESULTS, FIGURES, CKPT):
     d.mkdir(parents=True, exist_ok=True)
 
@@ -29,8 +34,25 @@ CLASS_MAP = {
     ("1. Healthy", "2. White Onion"): "healthy white onion",
     ("2. Unhealthy", "2. White Onion"): "unhealthy white onion",
 }
-CLASSES = list(CLASS_MAP.values())
+CLASSES = (list(CLASS_MAP.values()) if DATASET == "onion"
+           else json.loads((DROOT / "classes.json").read_text()))
 C = len(CLASSES)
+# Onion photos are landscape and the object fills the frame, so a centre crop is fine. Bee images are tall crops
+# (160 x 280) and a centre crop would cut off the head or abdomen, where the mite may sit: pad them to a square.
+PAD_SQUARE = DATASET != "onion"
+
+
+def pad_square(im):
+    w, h = im.size
+    if w == h:
+        return im
+    from PIL import Image
+    s = max(w, h)
+    out = Image.new("RGB", (s, s), (0, 0, 0))
+    out.paste(im, ((s - w) // 2, (s - h) // 2))
+    return out
+
+
 SHOTS = [1, 2, 4, 8, 16]
 SEEDS = [1, 2, 3]
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
