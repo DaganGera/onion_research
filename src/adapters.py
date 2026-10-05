@@ -1,27 +1,19 @@
-"""SOTA few-shot CLIP adaptation methods from the base paper's comparison table (arXiv 2512.12498, Table 1), re-implemented
-on the same frozen CLIP ViT-B/16 features, split, seeds and validation protocol as every other method here.
+"""CLIP adaptation methods from the base paper's comparison table, re-implemented on our cached CLIP features.
 
-  CLIPAdapter   Gao et al., IJCV 2024     residual bottleneck MLP on the image feature:
-                                          f' = r * MLP(f) + (1 - r) * f,  logits = 100 f' T^T
-  TaskRes       Yu et al., CVPR 2023      task residual on the text classifier:
-                                          t'_c = normalise(t_c + a * R_c),  R initialised at 0
-  CLAP          Silva-Rodriguez et al., CVPR 2024   linear probe initialised with the zero-shot text weights + a
-                                          class-adaptive constraint  sum_c lambda_c ||w_c - t_c||^2,
-                                          lambda_c = mean zero-shot confidence of class c on its own support photos
-  GraphAdapter  Li et al., NeurIPS 2023   text features refined by a GCN over a dual knowledge graph
-                                          (textual nodes = class text, visual nodes = class prototypes):
-                                          t'_c = normalise(b * GCN([T; P])_c + (1 - b) t_c)            ("lite": one layer)
-  CoOp          Zhou et al., IJCV 2022    learnable context tokens fed through the frozen CLIP text encoder
-                                          ("[V]_1 .. [V]_M classname."), initialised from "a photo of a"
-Not re-implemented (and why): Ta-Adapter (PR 2024) inserts trainable task prompts inside BOTH CLIP encoders and needs
-back-propagation through the image encoder; CAA (ICCV 2025) needs its ICA disentanglement module, with no code released.
+  CLIPAdapter   Gao et al., IJCV 2024     small residual MLP on the image feature:
+                                          f' = r * MLP(f) + (1 - r) * f,   logits = 100 f' . T
+  TaskRes       Yu et al., CVPR 2023      a learned residual added to the class text vectors:
+                                          t'_c = normalise(t_c + a * R_c),  R starts at 0
+  CLAP          Silva-Rodriguez et al., CVPR 2024   linear probe that starts from the text vectors and is pulled back
+                                          towards them: loss + sum_c lambda_c ||w_c - t_c||^2
+  GraphAdapter  Li et al., NeurIPS 2023   class text vectors refined by a one-layer GCN over text and image prototypes
+  CoOp          Zhou et al., IJCV 2022    learned prompt words ("[V]1 .. [V]M classname.") through the frozen text encoder,
+                                          starting from "a photo of a"
+Not included: Ta-Adapter (needs training inside the CLIP image encoder) and CAA (no code released).
 
-These are faithful to each paper's core equation, not the authors' code. Training recipes are aligned to the rest of
-this project (AdamW / the paper's optimiser where it matters, 10 cached augmented views, validation-selected
-hyper-parameters) so that the comparison is controlled. Class text: our visual descriptors (the same T every other
-"-clip" method uses), except CoOp, which learns its own prompt from the class name.
+These follow each paper's main equation, not the authors' code. All use the same cached views, the same class text
+(our descriptions; CoOp learns its own prompt) and validation-chosen hyper-parameters, so the comparison is fair.
 """
-import itertools
 
 import torch
 import torch.nn as nn

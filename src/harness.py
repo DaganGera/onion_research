@@ -5,7 +5,6 @@ import time
 
 import numpy as np
 import pandas as pd
-import torch
 
 from common import RESULTS, SEEDS, SPLITS, load_feats, metrics, seed_all
 

@@ -1,7 +1,7 @@
-"""Step 3.3 (G5): generic CNN baseline — EfficientNet-B0 (ImageNet weights) fine-tuned on the raw support images.
+"""A normal CNN for comparison: EfficientNet-B0 (ImageNet weights) fine-tuned on the support photos themselves.
 
-Shows how an ordinary fine-tuned CNN behaves with 1-8 images per class. Same splits and test set as everything else.
-The test set is decoded once into RAM (uint8, 224x224) so the 15 runs don't re-read 10k JPEGs each time.
+Shows what plain fine-tuning does with 1-16 photos per class. Same splits and test set as everything else.
+The test photos are decoded once into memory (uint8, 224x224) so the runs do not re-read thousands of JPEGs.
 """
 import numpy as np
 import pandas as pd

@@ -1,10 +1,8 @@
-"""Step 5.5 — the comparison figure as small multiples: one dot chart per K, no overlapping lines.
+"""The comparison figure: one dot chart per K, every method in the same row order (best average at the top).
 
-Each panel lists every method of the comparison in the SAME row order (best average first). Dot = mean macro-F1 over
-the 3 seeds; the thin line through it = range across the seeds (min to max). Colour marks only three things:
-our models (blue; filled = two backbones, hollow = one), the base paper (orange) and PlantCaFo-lite, the two-backbone
-rival (aqua). All other methods are grey. Palette validated with the dataviz skill's validator (3 slots, all pairs).
-Output: figures/comparison_dots.png
+Dot = mean macro-F1 over the 3 seeds, line = lowest to highest seed. Blue = PRGA (filled: with DINOv2 cache, hollow:
+CLIP only), orange = the base paper, green = PlantCaFo-style cache, grey = everything else.
+Output: figures/comparison_dots.png and comparison_dots_portrait.png
 """
 import importlib
 
@@ -16,12 +14,12 @@ import matplotlib.pyplot as plt
 
 from common import FIGURES
 
-ev = importlib.import_module("09_eval")
+ev = importlib.import_module("15_tables_and_figures")
 
 METHODS = {  # run name -> label shown on the chart
-    "PRGA2Bft-clip": "PRGA + DINOv2 cache (ours, 2 backbones)",
-    "PRGA-clip": "PRGA (ours, 1 backbone)",
-    "PlantCaFoLite-clip": "PlantCaFo-lite (2 backbones)",
+    "PRGA2Bft-clip": "PRGA + DINOv2 cache (2 backbones)",
+    "PRGA-clip": "PRGA (1 backbone)",
+    "PlantCaFoLite-clip": "PlantCaFo-style cache (2 backbones)",
     "CLIPAdapter-clip": "CLIP-Adapter (IJCV'24)",
     "TaskRes-clip": "TaskRes (CVPR'23)",
     "CoOp-clip": "CoOp (IJCV'22)",
@@ -84,7 +82,7 @@ def main(portrait=False):
         ax.tick_params(axis="y", labelsize=9, labelcolor=INK)
     for ax in axes[-1]:
         ax.set_xlabel("macro-F1 on the cleaned test set (higher is better)", color=INK2, fontsize=9)
-    fig.suptitle("Our models vs the base paper and the SOTA methods from its comparison table",
+    fig.suptitle("PRGA vs the base paper and the methods from its comparison table",
                  x=0.012, ha="left", fontsize=14, color=INK, y=0.995)
     sub = ("Dot = mean of 3 seeds; line = lowest to highest seed. Same row order in every panel (best average at the "
            "top). Bold number = best mean in that panel. Onion bulbs, 4 classes, 7,612 test photos.")

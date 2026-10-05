@@ -3,7 +3,7 @@ r"""The base paper's model, replicated from its text, equations and figures:
   Ahmad, Sikdar, Pradhan, Behera, "Advancing Cache-Based Few-Shot Classification via Patch-Driven Relational Gated
   Graph Attention", arXiv:2512.12498v1 (13 Dec 2025). No official code exists (the authors' GitHub repo only says
   "code will be made available once paper is accepted"), so every line below is traced to the paper; where the paper
-  is silent the choice is marked UNSPECIFIED and the default of Tip-Adapter-F (which the paper says it follows) is used.
+  is silent the choice is listed under "not specified" and the default of Tip-Adapter-F (which the paper says it follows) is used.
 
 What the paper fixes                                          where in the paper
 --------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ test:  logits = alpha * A(f_test, Theta) L_train + f_test W_c^T  -- NO graph at 
 optimiser: AdamW, lr 0.001, cosine annealing                  Sec. 4 "Dataset and Experimental Setup"
 alpha, beta: "tuned empirically"                              Sec. 4 + Fig. 5 (grid search)
 
-UNSPECIFIED in the paper -> what is used here (and why)
+Not specified in the paper -> what is used here (and why)
 --------------------------------------------------------------------------------------------------------------------
 exact 26-window list      every window SHAPE drawn in Fig. 2, at every position: 3x3 grid -> 1x1 (9), 2w x 3h (2),
                           3w x 2h (2) = 13; 4x4 grid -> 2w x 4h (3), 4w x 2h (3), 3w x 2h (6) = 12; + whole image
@@ -40,7 +40,7 @@ epochs / batch / eps      20 epochs, batch 256, AdamW eps 1e-4, weight decay = P
                           defaults, the recipe whose "AdamW + lr 0.001 + cosine annealing" the paper repeats
 Theta_0 = F_train         mean of 10 augmented 224-px views per support photo, L2-normalised (Tip-Adapter's cache)
 logit scale               100 * f W_c^T, CLIP's logit scale, as in Tip-Adapter's zero-shot term
-alpha, beta in training   UNSPECIFIED: (1,1) [Tip-Adapter's initial values], (10,1), (10,5) trained in parallel, chosen on
+alpha, beta in training   (1,1) [Tip-Adapter's initial values], (10,1), (10,5) trained in parallel, chosen on
                           validation; the test-time alpha, beta are then grid-searched on validation (Fig. 5)
 initialisation            W, W_m = identity (so the graph starts in CLIP space); a ~ Xavier-uniform as in GAT [39],
                           which Attention 1 "is nothing more than"; gamma_m = 1/|psi|
@@ -72,7 +72,7 @@ def _grid_windows(n, shapes, size=SIZE):
 FIG2_WINDOWS = (_grid_windows(3, [(1, 1), (2, 3), (3, 2)])
                 + _grid_windows(4, [(2, 4), (4, 2), (3, 2)])
                 + [(0, 0, SIZE, SIZE)])
-# The earlier re-implementation's reading (4x4 grid only, windows of 2-3 tiles per side + whole image): ablation
+# An alternative reading (4x4 grid only, windows of 2-3 tiles per side + whole image): ablation
 LEGACY_WINDOWS = _grid_windows(4, [(2, 2), (2, 3), (3, 2), (3, 3)]) + [(0, 0, SIZE, SIZE)]
 assert len(FIG2_WINDOWS) == 26 and len(LEGACY_WINDOWS) == 26
 ALL_WINDOWS = list(dict.fromkeys(FIG2_WINDOWS + LEGACY_WINDOWS))     # union, encoded once per image per step
@@ -93,7 +93,6 @@ class RelationalGatedLayer(nn.Module):
         nn.init.xavier_uniform_(a, gain=1.414)                    # GAT's initialisation of the attention vector
         self.a = nn.Parameter(a.squeeze(1))                       # a = [a_src ; a_dst]
         self.rho = {"relu": nn.ReLU(), "identity": nn.Identity(), "gelu": nn.GELU()}[act]
-        self.last_alpha = None
 
     def forward(self, h):                                          # h [B, P, d]
         Wh = self.W(h)
@@ -104,7 +103,6 @@ class RelationalGatedLayer(nn.Module):
         att2 = torch.sigmoid(Wh @ Wh.transpose(1, 2))                           # sigma((W h_p)^T (W h_q))
         e = {"a1a2": att1 * att2, "a1": att1, "a2": att2}[self.mode]
         alpha = torch.softmax(F.leaky_relu(e, 0.2), dim=-1)                     # softmax over q
-        self.last_alpha = alpha.detach()
         return self.rho(alpha @ Wh)                                             # Eq. 1
 
 

@@ -1,9 +1,10 @@
-"""Step 4.2b — model selection for PRGA on VALIDATION data only (the test set is never touched here).
-Candidates: the ablation variants that looked promising + a smaller hidden size. Criterion: mean validation macro-F1
-over K in {1, 4, 16} x 3 seeds. The winner becomes the final PRGA configuration (read by 07_prga.py).
+"""Choose the PRGA configuration using validation data only (the test set is not touched here).
 
-  python 07b_prga_select.py          CLIP-only candidates   -> results/prga_selection_val.csv
-  python 07b_prga_select.py --dino   + DINOv2-cache variants -> results/prga_selection_val_dino.csv
+Each candidate is trained for K in {1, 4, 16} x 3 seeds; the winner is the one with the highest mean validation
+macro-F1. 11_prga.py reads the result.
+
+  python 12_prga_select.py          single-backbone candidates -> results/prga_selection_val.csv
+  python 12_prga_select.py --dino   with a DINOv2 cache inside -> results/prga_selection_val_dino.csv
 """
 import sys
 

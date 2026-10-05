@@ -1,13 +1,14 @@
-"""Step 6e — SOTA comparison methods from the base paper's Table 1 (sota.py), on the same features, split and seeds.
+"""Run the methods from the base paper's comparison table (implemented in adapters.py) on the same features,
+split and seeds as everything else.
 
-  python 06e_sota.py [--methods clipadapter taskres clap graphadapter coop] [--shots ...]
-Resumable via harness (results/runs/<name>.jsonl). CoOp back-propagates through the CLIP text encoder (GPU advised).
+  python 10_comparison_methods.py [--methods clipadapter taskres clap graphadapter coop] [--shots ...]
+CoOp back-propagates through the CLIP text encoder, so a GPU helps.
 """
 import argparse
 
 from fewshot import Store
 from harness import ALL_K, load_text, run
-from sota import CLAP, CLIPAdapter, CoOp, GraphAdapter, TaskRes
+from adapters import CLAP, CLIPAdapter, CoOp, GraphAdapter, TaskRes
 
 
 def main():

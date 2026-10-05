@@ -1,10 +1,11 @@
-"""GPU jobs G1/G2a/G3/G4: encode images with a frozen backbone and cache the features.
+"""Run a frozen backbone (CLIP, DINOv2, BioCLIP or SCOLD) over the photos once and save the features to disk.
+All few-shot methods then train on these cached vectors, which is why a training run takes seconds.
 
-  --mode global   every image, centre crop          -> features/{bb}_global.pt   feats [N, D]
-  --mode aug      pool images x N_AUG random views   -> features/{bb}_aug.pt      feats [Np, N_AUG, D]
-  --mode grid     every image, 3x3 grid crops        -> features/{bb}_grid.pt     feats [N, 9, D]
-  --mode regions  object + M OWLv2 region crops      -> features/{bb}_regions.pt  feats [N, 1+M, D], mask, geom, kind
-Rows are aligned with data/meta.csv (the file stores the paths so this can always be checked).
+  --mode global   every photo, centre crop             -> features/{bb}_global.pt   [N, D]
+  --mode aug      pool photos x N_AUG random views      -> features/{bb}_aug.pt      [Npool, N_AUG, D]
+  --mode grid     every photo, 3x3 grid of crops        -> features/{bb}_grid.pt     [N, 9, D]
+  --mode regions  object box + M OWLv2 region crops     -> features/{bb}_regions.pt  [N, 1+M, D] + mask, geom, kind
+Each file stores the photo paths, so rows can always be matched back to photos.
 """
 import argparse
 

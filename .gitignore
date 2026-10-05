@@ -27,3 +27,6 @@ kaggle/out_*/
 results_localtests/
 archive_v1/
 data/clean/pairs_checked.csv
+
+# demo output (regenerate with src/demo.py)
+figures/demo_*.png

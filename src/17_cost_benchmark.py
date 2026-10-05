@@ -1,8 +1,7 @@
-"""Step 6 — inference cost per photo of every pipeline component (latency and parameter count).
+"""How long each part of the pipeline takes per photo, and how many parameters it has.
 
-Measures, on the available device (GPU if present, else CPU), the median time per photo of:
-  CLIP ViT-B/16 on the whole photo, CLIP on the 5 region crops, OWLv2 detection, DINOv2-S, and the PRGA head,
-plus a CPU run of the cheap components. Batch size 1 (a single photo arriving), fp16 on GPU, after warm-up.
+Times the whole-photo CLIP, CLIP on the 5 region crops, OWLv2 detection, DINOv2 and the PRGA head, one photo at a
+time (batch size 1), fp16 on the GPU after a warm-up, median of REPS runs. The cheap parts are also timed on the CPU.
 Output: results/cost_benchmark.csv
 """
 import time

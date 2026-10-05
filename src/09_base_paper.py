@@ -1,29 +1,27 @@
-"""Step 6d (GPU) — train and evaluate the base paper's model exactly as described (basepaper.py), on the leak-free split.
+"""Train and test the base paper's model (basepaper.py) on our split, following the paper as closely as possible.
 
-Unlike the earlier re-implementations, the graph sees FRESH augmentations every step, as in the paper: every epoch each
-support photo is randomly resized-cropped + flipped, resized to 336x336, cut into the 26 Fig.-2 windows, every window is
-resized to 224x224 and encoded by the frozen CLIP. (Earlier versions used a few precomputed views, an approximation.)
+As in the paper, every training step uses fresh augmentations: each support photo is randomly cropped and flipped,
+resized to 336x336, cut into the 26 windows of the paper's Fig. 2, and every window is resized to 224 and encoded by
+the frozen CLIP. These encodings are shared by several model variants ("heads") trained side by side, so the
+ablations cost little extra:
 
-The CLIP encodings of one step are shared by several heads (= model configurations), so ablations cost almost nothing:
-  BasePaperExact               the paper: Fig.-2 windows, Attention1*Attention2, psi={mean,max,std}, one-hot cache,
-                               W_c from "a photo of a [CLASS]"                                      <- main result
-  BasePaperExact-bal           same, class-balanced cache values (needed for the unequal full pool)
-  BasePaperExact-desc          same, W_c from our hand-written visual descriptors (what our other methods use)
-  BasePaperExact-A1 / -A2      Table 3 of the paper: only Attention 1 / only Attention 2
-  BasePaperExact-noEdges       Table 5 of the paper: no inter-patch edges
-  BasePaperExact-aggFig1       psi = {min, max, softmax} as drawn in Fig. 1
-  BasePaperExact-legacyWin     the earlier implementation's 26-window reading (4x4 grid only)
-  BasePaperExact-rhoLastId     no ReLU after the LAST graph layer (GAT's output-layer convention): tests whether the
-                               literal Eq.-1 ReLU pushes f_hat out of CLIP space (train query != test query)
-  BasePaperExact-noGraph       CONTROL: identical recipe, but the training query is the plain whole-image window
-                               feature = Tip-Adapter-F with fresh augmentations. Graph helps <=> BasePaperExact > this.
-Epoch 0 (untrained keys) is a candidate in the epoch selection: best_epoch = 0 means training did not help on val.
-Every head is trained with L in {1, 2} and (alpha, beta)_train in TRAIN_AB; L, (alpha, beta)_train, the epoch and the
-test-time alpha/beta are chosen on validation only (the paper: alpha, beta 'tuned empirically'; L not given).
+  BasePaperExact               the paper as described                                          <- main result
+  BasePaperExact-bal           class-balanced cache values (the full pool has unequal class sizes)
+  BasePaperExact-desc          class text from our visual descriptions instead of "a photo of a [CLASS]"
+  BasePaperExact-A1 / -A2      only Attention 1 / only Attention 2 (the paper's Table 3)
+  BasePaperExact-noEdges       no edges between patches (the paper's Table 5)
+  BasePaperExact-aggFig1       aggregators {min, max, softmax} as drawn in Fig. 1
+  BasePaperExact-legacyWin     another reading of the 26 windows (4x4 grid only)
+  BasePaperExact-rhoLastId     no ReLU after the last graph layer
+  BasePaperExact-noGraph       control: same recipe, but the training query is the plain whole-photo feature,
+                               i.e. Tip-Adapter-F with fresh augmentations. The graph helps only if
+                               BasePaperExact beats this.
 
-  python 06d_basepaper_exact.py [--shots 1 2 4 8 16 full] [--seeds 1 2 3] [--device cuda:0] [--tag gpu0]
-Resumable: finished (K, seed) runs are read back from results/runs/<name>@<tag>.jsonl.
-Outputs: results/runs/*.jsonl, results/preds/*.npy, checkpoints/BasePaperExact_Kfull_s1.pt
+Epoch 0 (untrained cache) is also a candidate, so best_epoch = 0 means training did not help on validation. The number
+of graph layers, the training alpha/beta, the epoch and the test-time alpha/beta are all chosen on validation.
+
+  python 09_base_paper.py [--shots 1 2 4 8 16 full] [--seeds 1 2 3] [--tag gpu0]
+Finished (K, seed) runs are read back from results/runs/<name>@<tag>.jsonl and skipped.
 """
 import argparse
 import itertools
@@ -46,7 +44,7 @@ MEAN = (0.48145466, 0.4578275, 0.40821073)
 STD = (0.26862954, 0.26130258, 0.27577711)
 AUG = T.Compose([T.RandomResizedCrop(SIZE, scale=(0.5, 1.0), interpolation=T.InterpolationMode.BICUBIC),
                  T.RandomHorizontalFlip(), T.PILToTensor()])
-TRAIN_AB = [(1.0, 1.0), (10.0, 1.0), (10.0, 5.0)]     # alpha, beta used in training: UNSPECIFIED -> chosen on validation
+TRAIN_AB = [(1.0, 1.0), (10.0, 1.0), (10.0, 5.0)]     # alpha, beta used in training: not given in the paper, so chosen on validation
 ALPHAS = (0.1, 0.25, 0.5, 1, 2, 3, 5, 8, 12, 16, 24, 32, 48, 64, 96)             # validation grid (Fig. 5 searches alpha, beta)
 BETAS = (0.5, 1, 2, 3, 4, 5, 7, 9)
 CONFIGS = [  # name, cache, text, head kwargs

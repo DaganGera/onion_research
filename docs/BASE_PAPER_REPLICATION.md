@@ -4,7 +4,7 @@
 Relational Gated Graph Attention*, arXiv:2512.12498v1, 13 Dec 2025.
 **Code by the authors:** none. Their GitHub repository (`tasveerahmad/Patch-Relational-Graph-Attention`) contains only
 a README: *"Our code and dataset will be made available once paper is accepted."* (checked 3 Oct 2026).
-**Our code:** `src/basepaper.py` (model), `src/06d_basepaper_exact.py` (training/evaluation, Kaggle T4 GPUs).
+**Our code:** `src/basepaper.py` (model), `src/09_base_paper.py` (training/evaluation, Kaggle T4 GPUs).
 
 Because there is no code, an "exact" replication can only mean: **everything the paper states is implemented as stated,
 and every gap is filled with a documented default and, where cheap, tested both ways.** Each item below cites where in
@@ -45,8 +45,8 @@ the paper it comes from.
 
 ## 3. What changed compared with our earlier re-implementations
 
-`archive_v1/src/basemodel.py` (in `~/ONION`) and `onion_research/src/fewshot_paper.py` were close, but differed from the
-paper in six places:
+Two earlier versions of this replication (not kept in this repository) were close, but differed from the paper in six
+places:
 
 | | earlier code | paper / now |
 |---|---|---|

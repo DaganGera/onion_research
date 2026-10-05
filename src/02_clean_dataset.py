@@ -1,27 +1,24 @@
-"""Step 0 — clean the bulb dataset BEFORE any split or training: integrity, duplicates, same-scene re-shots.
+"""Clean the dataset before any split or training: broken files, exact duplicates and re-shots of the same scene.
 
-Why: the photographers shot each onion / pile many times, on the same cloth, sometimes in different sessions (files far
-apart, e.g. Onion05365 and Onion05883 are the same onion). The earlier CLIP capture-session clustering missed such
-re-shots, and some ended up on both sides of the split (visually confirmed). Global CLIP similarity cannot tell "same
-object" from "similar scene" (single linkage on it chains 20-80 % of a class into one group), so re-shots are found with
-local-feature GEOMETRIC VERIFICATION, which is specific to the same physical scene:
+Why this is needed: each onion or pile was photographed many times, on the same cloth, sometimes far apart in the file
+numbering (Onion05365 and Onion05883 are the same onion). If two such photos land in training and test, the test
+score is inflated. CLIP similarity alone cannot tell "same scene" from "similar-looking scene", so pairs are confirmed
+with local keypoints and geometry, which only match when it really is the same physical scene.
 
-  1. integrity    every file decodes; size recorded
-  2. exact dups   identical bytes (MD5): keep one file
-  3. candidates   same-class pairs with CLIP cosine >= CAND (cheap recall filter; cross-class pairs >= CAND_X are also
-                  checked, to find label conflicts)
-  4. pre-filter   SIFT (RootSIFT, N_KP keypoints at 640 px) matched on the GPU for every candidate pair: Lowe ratio
-                  test + mutual nearest neighbour; pairs with >= MIN_MATCH matches go on
-  5. verify       RANSAC homography on the matched keypoints (OpenCV); a pair is the SAME SCENE if >= MIN_INLIERS inliers
-  6. groups       union-find over verified pairs + exact duplicates + the previous capture-session groups
-                  -> every re-shot of an object is in one group, so a group-wise split cannot leak it
-  7. near-dups    inside a group, a photo that is a verified match with CLIP >= NEAR_DUP to an already kept photo is
-                  REMOVED (burst shots: same view, adds no information, double-counts in the test set)
-  8. conflicts    verified cross-class pairs are reported (and both photos removed) - the same object cannot be both classes
+  1. integrity    every file must open
+  2. exact dups   identical bytes (MD5): keep one
+  3. candidates   same-class pairs with CLIP cosine >= CAND (cheap filter); cross-class pairs >= CAND_X are also
+                  checked, to catch label conflicts
+  4. matching     RootSIFT keypoints (N_KP per photo at SIDE px), matched on the GPU: ratio test + mutual nearest
+                  neighbour; pairs with >= MIN_MATCH matches go on
+  5. verify       RANSAC homography (OpenCV); >= MIN_INLIERS inliers means "same scene"
+  6. groups       union-find over verified pairs, exact duplicates and the groups from 01_audit_photos.py
+  7. near-dups    inside a group, a verified match with CLIP >= NEAR_DUP to a photo already kept is removed
+                  (burst shots add nothing and would count twice in the test set)
+  8. conflicts    verified cross-class pairs are reported and both photos removed
 
-Outputs: data/clean/meta_clean.csv (kept photos + new `group`), data/clean/removed.csv (photo, reason, kept twin),
-         data/clean/pairs_verified.csv, data/clean/report.md, figures/clean_examples_*.png
-  python 00_clean_dataset.py              (GPU recommended for step 4; CPU fallback works, slower)
+  python 02_clean_dataset.py      (GPU recommended for step 4; CPU works, slower)
+Output: data/clean/meta_clean.csv, removed.csv, pairs_verified.csv, report.md
 """
 import hashlib
 import os
@@ -244,7 +241,7 @@ def main():
     rem.to_csv(OUT / "removed.csv", index=False)
 
     gs = clean.groupby("class_name").group.nunique()
-    lines = ["# Dataset cleaning report (src/00_clean_dataset.py)", "",
+    lines = ["# Dataset cleaning report (src/02_clean_dataset.py)", "",
              f"- photos before: **{n}**; removed: **{len(rem)}**; kept: **{len(clean)}**",
              f"- capture-session groups before: {meta.group.nunique()}; after merging verified re-shots: "
              f"**{clean.group.nunique()}**",

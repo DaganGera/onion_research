@@ -1,9 +1,9 @@
-"""Step 0b — visual check of the cleaning decisions (00_clean_dataset.py): montages of pairs around the RANSAC threshold,
-of removed near-duplicates, of label conflicts, and of the most similar remaining train/test pairs after the split.
+"""Pictures for checking the cleaning by eye: pairs around the RANSAC threshold, removed near-duplicates, label
+conflicts, and the most similar train/test pairs left after the split.
 
-  python 00b_clean_inspect.py --bands          pairs by inlier count, to calibrate MIN_INLIERS by eye
-  python 00b_clean_inspect.py --leakcheck      after 02_split.py: highest train/test similarities that remain
-Images: figures/clean_*.png
+  python 03_check_cleaning.py --bands       pairs grouped by inlier count (used to pick MIN_INLIERS)
+  python 03_check_cleaning.py --leakcheck   after 04_split.py: the closest train/test pairs that remain
+Output: figures/clean_*.png
 """
 import argparse
 

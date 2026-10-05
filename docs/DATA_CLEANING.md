@@ -1,6 +1,6 @@
 # Dataset cleaning and the leak-free split
 
-Scripts: `src/00_clean_dataset.py` (cleaning), `src/00b_clean_inspect.py` (visual checks), `src/02_split.py` (split).
+Scripts: `src/02_clean_dataset.py` (cleaning), `src/03_check_cleaning.py` (visual checks), `src/04_split.py` (split).
 Outputs: `data/clean/` (`meta_clean.csv`, `removed.csv`, `purged_test.csv`, `pairs_verified.csv`, `report.md`,
 `split_summary.csv`) and the montages `figures/clean_*.png` referred to below.
 
@@ -42,7 +42,7 @@ result, the "same-scene" graph is highly connected: its connected components con
 component-wise split would put nearly all pile photos in the test set (in a trial run: 0 % pile photos in the
 healthy-red training pool vs 29 % in test). That is a distribution shift we would be creating ourselves, so we did not use it.
 
-## The split (`src/02_split.py`)
+## The split (`src/04_split.py`)
 
 1. Nodes = capture sessions (never split); edges = verified same-scene pairs, weighted by inliers.
 2. Louvain communities per class (seed 0): 960 communities.

@@ -15,9 +15,7 @@ for name in ("roberta-base", "dinov2-small"):
         shutil.copytree(d[0], f"{W}/third_party/models/{name}", dirs_exist_ok=True)
         open(f"{W}/third_party/models/{name}/.complete", "w").close()
 print("scold files:", os.listdir(W + "/third_party/scold"), flush=True)
-_code = open(W + "/src/07c_prga_improve.py").read()
-assert "PRGA-clip-samefeats" in _code, "STALE CODE MOUNTED - aborting"
-assert os.path.exists(W + "/data/clean/meta_clean.csv"), "CLEAN DATASET MISSING - aborting"
+assert os.path.exists(W + "/data/clean/meta_clean.csv"), "cleaned dataset missing"
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "open_clip_torch", "tabulate"], check=True)
 r = subprocess.run(["bash", W + "/run_extra.sh"])
 print("extra exit", r.returncode)

@@ -1,8 +1,8 @@
-"""Step 1.5 / 3.1: class text embeddings.
+"""Encode the class texts with the backbone's text encoder.
 
-features/{bb}_text_template.pt : T [C, D]  averaged over simple templates
-features/{bb}_text_desc.pt     : T [C, D]  averaged over the checked symptom descriptors
-                                 desc [C, Dmax, D] + desc_mask [C, Dmax] (per-descriptor, used by XAI)
+features/{bb}_text_template.pt : one vector per class, averaged over simple templates ("a photo of a {class}." ...)
+features/{bb}_text_desc.pt     : one vector per class from the hand-written visual descriptions in
+                                 prompts/descriptors.json: mean of the description vectors + 0.5 x template vector
 """
 import argparse
 

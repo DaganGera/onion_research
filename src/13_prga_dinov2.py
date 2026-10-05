@@ -1,18 +1,17 @@
-"""Step 4.3 — can PRGA be improved, judged on VALIDATION only? Candidate: a complementary DINOv2 cache.
+"""Final model: PRGA + a second cache built from DINOv2 features. Decided on validation, then tested once.
 
-Motivation (general, not onion-specific): CLIP is trained on image-text pairs and DINOv2 by self-supervision on images
-only; their errors are partly independent, which is why multi-backbone caches (CaFo, CVPR 2023; PlantCaFo, Plant
-Phenomics 2025) help. In our table the DINOv2 cache is exactly what separates PlantCaFo-lite from Tip-Adapter-F.
+Idea: CLIP learned from image-text pairs, DINOv2 from images alone, so their mistakes are partly different. Adding a
+DINOv2 cache is what makes the PlantCaFo-style method beat Tip-Adapter-F in our table, so we tried it on PRGA.
 
-  A  PRGA (validation-selected configuration, unchanged)
-  B  A + training-free DINOv2 cache:   logits_A + a2 * exp(-b2 (1 - q2 K2^T)) L_bal
-  C  A + DINOv2 cache with keys fine-tuned Tip-Adapter-F style (20 epochs on the 10 augmented views)
+  A  PRGA as selected by 12_prga_select.py
+  B  A + a fixed DINOv2 cache:  logits_A + a2 * exp(-b2 (1 - q2 . K2)) L
+  C  A + the same cache with its keys fine-tuned for 20 epochs (Tip-Adapter-F style)
 
-Protocol (no test-set information used for any decision):
-  - each validation set is split BY ONION COMMUNITY into half T (tune a2, b2) and half S (score);
-  - the variant is chosen ONCE, globally: highest mean macro-F1 on the S halves over all K x seeds;
-  - only then is the chosen variant run on the test set (a2, b2 re-tuned on the whole validation set, as for every
-    other method). Outputs: results/prga_improve_val.csv, results/runs/PRGA2B-clip.jsonl (if chosen)
+How the choice is made without the test set:
+  - each validation set is split by onion community into two halves: tune a2, b2 on one, score on the other
+  - the variant with the best mean score over all K x seeds wins
+  - only the winner is run on the test set (a2, b2 re-tuned on the whole validation set)
+Output: results/prga_improve_val.csv, results/runs/PRGA2Bft-clip_improve.jsonl
 """
 import itertools
 import json
@@ -29,7 +28,7 @@ from harness import ALL_K, load_text
 
 A2 = (0, 0.5, 1, 2, 4, 8, 16, 32)
 B2 = (1, 3, 5, 7, 9)
-CHOSEN = ("train-only+no-geometry", dict(test_graph=False, use_geom=False))     # 07b_prga_select.py, validation
+CHOSEN = ("train-only+no-geometry", dict(test_graph=False, use_geom=False))     # 12_prga_select.py, validation
 
 
 @torch.no_grad()

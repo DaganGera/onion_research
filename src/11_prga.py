@@ -1,8 +1,7 @@
-"""Step 3.2 / 4.1 / 4.2: PRGA (ours) — main sweep and ablations.
+"""Train and test PRGA, and run its ablations.
 
-  python 07_prga.py                         final PRGA (config chosen on VALIDATION by results/prga_select.py)
-  python 07_prga.py --v0                    the first, un-selected configuration (kept for transparency)
-  python 07_prga.py --ablations --shots 1 4 ablation table
+  python 11_prga.py                           PRGA with the configuration chosen on validation (12_prga_select.py)
+  python 11_prga.py --ablations --shots 1 4   remove one part at a time -> results/ablations_K1-4.csv
 """
 import ast
 import argparse
@@ -10,9 +9,10 @@ import argparse
 import pandas as pd
 
 from common import RESULTS
-from fewshot import PRGA, PlantCaFoLite, Store
+from fewshot import PRGA, Store
 from harness import ALL_K, load_text, run
 
+# Each ablation switches off or replaces one part of PRGA; everything else stays the same.
 ABLATIONS = {
     # name                     kwargs for PRGA                         text features
     "PRGA-full":               (dict(), "desc"),
@@ -43,14 +43,9 @@ def main():
     ap.add_argument("--ablations", action="store_true")
     ap.add_argument("--shots", nargs="+", default=ALL_K)
     ap.add_argument("--only", nargs="*", default=None)
-    ap.add_argument("--v0", action="store_true")
     a = ap.parse_args()
     if not a.ablations:
         T = load_text("clip", "desc")
-        if a.v0:
-            store = Store("clip", need=("global", "aug", "regions"))
-            run("PRGA-v0-clip", lambda: PRGA(T), store, shots=a.shots)
-            return
         name, cfg = selected_config()
         print("final PRGA configuration (selected on validation):", name, cfg)
         store = Store("clip", second="dinov2" if cfg.get("second") else None, need=("global", "aug", "regions"))

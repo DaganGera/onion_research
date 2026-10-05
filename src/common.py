@@ -9,8 +9,8 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = Path(os.environ.get("ONION_RAW", ROOT / "data/raw/onion_bulbs/Onion Image Dataset/2. Bulb"))   # Kaggle: env
-META_RAW = ROOT / "data/meta.csv"                    # audit of every photo (01_audit_dedup.py)
-META_CLEAN = ROOT / "data/clean/meta_clean.csv"      # after 00_clean_dataset.py: what every later step uses
+META_RAW = ROOT / "data/meta.csv"                    # audit of every photo (01_audit_photos.py)
+META_CLEAN = ROOT / "data/clean/meta_clean.csv"      # after 02_clean_dataset.py: what every later step uses
 META = META_CLEAN if META_CLEAN.exists() else META_RAW
 SPLITS = ROOT / "splits"
 FEATS = ROOT / "features"

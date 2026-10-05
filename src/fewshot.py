@@ -1,7 +1,7 @@
-"""Few-shot methods on cached features: zero-shot, linear probe, Tip-Adapter(-F), grid graph (base paper),
-PlantCaFo-lite (multi-backbone cache) and PRGA (ours). All share one interface:
+"""Few-shot methods that run on cached features: zero-shot CLIP, linear probe, Tip-Adapter(-F), the PlantCaFo-style
+two-backbone cache and PRGA. They all work the same way:
 
-    m = Method(**cfg); m.fit(train: Batch, val: Batch); probs = m.predict(test: Batch)
+    model = Method(...); model.fit(support_batch, val_batch); probs = model.predict(test_batch)
 """
 import itertools
 from dataclasses import dataclass
@@ -24,12 +24,8 @@ class Batch:
     reg: torch.Tensor | None = None  # [N, 1+M, D] object + regions
     mask: torch.Tensor | None = None  # [N, 1+M]
     geom: torch.Tensor | None = None  # [N, 1+M, 6]  (cx, cy, w, h, score, kind) kind: 1 obj 2 instance 3 spot
-    g2: torch.Tensor | None = None   # [N, D2] second backbone (PlantCaFo-lite)
-    aug2: torch.Tensor | None = None
-    pp: torch.Tensor | None = None    # [N, V, 26, 512] paper-style multi-scale patch features (training photos only)
-    rv: torch.Tensor | None = None    # [N, V, 5, 512] augmented views of the detector-region crops (object + 4 regions)
-    rm: torch.Tensor | None = None    # [N, 5] which region slots are real
-    gv: torch.Tensor | None = None    # [N, V, 512] whole-photo views
+    g2: torch.Tensor | None = None   # [N, D2] second backbone (DINOv2)
+    aug2: torch.Tensor | None = None  # [N, V, D2] augmented views, second backbone
 
     def __len__(self):
         return len(self.y)
@@ -57,10 +53,6 @@ class Store:
         # the dataset is cleaned)
         self.rows = {k: {p: i for i, p in enumerate(v["paths"])} for k, v in self.f.items() if "paths" in v}
         self.aug_row = {p: i for i, p in enumerate(self.f["aug"]["paths"])} if "aug" in self.f else {}
-        if "regionviews" in self.f and "aug" in self.f:
-            assert self.f["regionviews"]["paths"] == self.f["aug"]["paths"], "region views must align with clip_aug"
-        if "paperpatches" in self.f and "aug" in self.f:
-            assert self.f["paperpatches"]["paths"] == self.f["aug"]["paths"], "patch features must align with clip_aug"
         self.aug2_row = {p: i for i, p in enumerate(self.f["aug2"]["paths"])} if "aug2" in self.f else {}
 
     def batch(self, df, with_aug=False):
@@ -75,12 +67,6 @@ class Store:
             b.geom = with_kind(r["geom"][idx].float(), r["kind"][idx] if "kind" in r else None)
         if "g2" in self.f:
             b.g2 = self.f["g2"]["feats"][ix("g2")].float()
-        if with_aug and "regionviews" in self.f:
-            rows = torch.tensor([self.aug_row[p] for p in df.path])
-            rvf = self.f["regionviews"]
-            b.rv, b.rm, b.gv = rvf["feats"][rows].float(), rvf["mask"][rows].float(), rvf["gviews"][rows].float()
-        if with_aug and "paperpatches" in self.f:
-            b.pp = self.f["paperpatches"]["feats"][torch.tensor([self.aug_row[p] for p in df.path])].float()
         if with_aug:
             b.aug = self.f["aug"]["feats"][torch.tensor([self.aug_row[p] for p in df.path])].float()
             if "aug2" in self.f:
@@ -255,7 +241,6 @@ class GatedGAT(nn.Module):
         self.Wg = nn.Linear(2 * dim, dim)
         self.ln = nn.LayerNorm(dim)
         self.drop = nn.Dropout(dropout)
-        self.last_attn = None
 
     def forward(self, h, e, node_mask):
         B, N, D = h.shape
@@ -265,7 +250,6 @@ class GatedGAT(nn.Module):
             + self.U(e).permute(0, 3, 1, 2)                                     # [B,H,N,N]
         s = F.leaky_relu(s, 0.2).masked_fill(node_mask[:, None, None, :] == 0, float("-inf"))
         a = self.drop(torch.softmax(s, -1))
-        self.last_attn = a.detach()
         m = torch.einsum("bhij,bjhd->bihd", a, Wh).reshape(B, N, D)
         if self.gate:
             z = torch.sigmoid(self.Wg(torch.cat([h, m], -1)))
@@ -280,14 +264,12 @@ class Readout(nn.Module):
         super().__init__()
         self.q = nn.Linear(dim, 1)
         self.proj = nn.Linear(3 * dim, out)
-        self.last_w = None
 
     def forward(self, h, mask):
         m = mask.unsqueeze(-1)
         mean = (h * m).sum(1) / m.sum(1).clamp_min(1)
         mx = h.masked_fill(m == 0, -1e4).max(1).values
         w = self.q(h).squeeze(-1).masked_fill(mask == 0, float("-inf")).softmax(-1)
-        self.last_w = w.detach()
         att = (w.unsqueeze(-1) * h).sum(1)
         return self.proj(torch.cat([mean, mx, att], -1))
 
@@ -305,7 +287,7 @@ def box_iou_dist(geom):
     return iou, dist, sc[:, :, None] * sc[:, None]
 
 
-# ----------------------------------------------------------------------------- PRGA (ours) and grid graph (base paper)
+# ----------------------------------------------------------------------------- PRGA
 class PRGANet(nn.Module):
     """Graph over image nodes (global, object, M regions — or 9 grid patches) and C class-text nodes."""
 
@@ -367,8 +349,9 @@ class PRGA:
     """Prompt-grounded Region Graph Adapter.
 
     logits = 100 f.T  +  alpha * exp(-beta (1 - f_hat . F_hat)) L  +  gamma * 100 f_hat . T_hat
-    nodes='regions' (ours, OWLv2) or 'grid' (base paper). test_graph=False reproduces the base paper's
-    train-only refinement (queries use the raw global feature at test time).
+    nodes='regions' uses the OWLv2 boxes, nodes='grid' a 3x3 grid (ablation). With test_graph=False the graph refines
+    the support photos (cache keys) and the class prototypes, but the cache is queried with the plain CLIP feature of
+    the test photo. Validation chose test_graph=False.
     """
 
     def __init__(self, T, nodes="regions", text_nodes=True, gate=True, use_geom=True, test_graph=True,
@@ -498,40 +481,3 @@ class PRGA:
 
     def n_params(self):
         return sum(p.numel() for p in self.net.parameters() if p.requires_grad) + 3
-
-
-# ----------------------------------------------------------------------------- saving + explanations (used by XAI / demo)
-def prga_state(m: PRGA):
-    return dict(T=m.T, nodes=m.nodes, test_graph=m.test_graph, M=m.M, cfg=m.cfg, net=m.net.state_dict(),
-                s={k: float(v) for k, v in m.s.items()}, keys=m.keys.cpu(), L=m.L.cpu())
-
-
-def prga_from_state(st):
-    m = PRGA(st["T"], nodes=st["nodes"], test_graph=st["test_graph"], M=st["M"])
-    m.cfg = st["cfg"]
-    m.net = PRGANet(st["T"], **st["cfg"]).to(DEVICE)
-    m.net.load_state_dict(st["net"])
-    m.net.eval()
-    m.s = {k: torch.tensor(v, device=DEVICE) for k, v in st["s"].items()}
-    m.keys, m.L = st["keys"].to(DEVICE), st["L"].to(DEVICE)
-    return m
-
-
-def prga_explain(m: PRGA, g, nodes, mask, geom):
-    """One image at a time or a batch. Returns probs [B,C], node attribution [B,1+K] (gradient x input on each
-    image node's CLIP feature, for the predicted class; 0 for padding) and readout attention [B,1+K]."""
-    g = g.to(DEVICE).clone().requires_grad_(True)
-    nodes = nodes.to(DEVICE).clone().requires_grad_(True)
-    mask, geom = mask.to(DEVICE), geom.to(DEVICE)
-    m.net.eval()
-    fq, Tq = m.net(g, nodes, mask, geom)
-    if not m.test_graph:            # same as prediction: the cache query is the plain CLIP feature; regions act via Tq
-        fq = g
-    logits = m._logits(g, fq, Tq, m.keys, m.L, m.s)
-    pred = logits.argmax(1)
-    logits.gather(1, pred[:, None]).sum().backward()
-    attr_g = (g.grad * g).sum(-1, keepdim=True)
-    attr_n = (nodes.grad * nodes).sum(-1) * mask
-    attr = torch.cat([attr_g, attr_n], 1).detach()
-    att = m.net.readout.last_w.detach()
-    return logits.softmax(1).detach().cpu(), attr.cpu(), att.cpu()

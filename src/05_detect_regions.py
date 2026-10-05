@@ -1,14 +1,16 @@
-"""GPU job G2b: prompt-grounded regions with OWLv2 -> regions/regions.json
+"""Find the onion and small suspicious regions in every photo with OWLv2 (open-vocabulary detector, text prompts).
 
-For every image: the best OBJECT box, plus up to M region boxes of two kinds, each with score, prompt and kind:
-  * "instance": individual onions (in pile photos these are the separate bulbs) — N_INST budget
-  * "spot":     small lesion-like areas (black mould, rotten spot, bruise, sprout, peeling) — N_SPOT budget
-If one kind has fewer boxes, the other kind fills the free slots. Resumable: processed images are skipped.
-Finding: OWLv2 does NOT separate rotten from healthy onions ("a rotten onion" fires on healthy ones too), so the
-instance prompts act as an onion detector; the classification is left to CLIP + the graph.
+For every photo: the best object box, plus up to M region boxes of two kinds:
+  - "instance": single onions (in pile photos, the separate bulbs), up to N_INST
+  - "spot":     small lesion-like areas (mould, rotten spot, bruise, sprout, peeling skin), up to N_SPOT
+If one kind finds fewer boxes, the other kind fills the free slots. Already processed photos are skipped on a rerun.
 
-OWLv2 pads each image to a square (bottom/right) before detection, so its normalised boxes are relative to
-the padded square of side max(w, h) — we convert with that side length, not with (w, h).
+Observation: OWLv2 does not separate rotten from healthy onions ("a rotten onion" also fires on healthy ones), so the
+instance prompts work as an onion detector. Classification is left to CLIP and the graph.
+
+OWLv2 pads each photo to a square (bottom/right) before detection, so its normalised boxes are relative to a square
+of side max(w, h); boxes are converted back with that side length.
+Output: regions/regions.json
 """
 import argparse
 

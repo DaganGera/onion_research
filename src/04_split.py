@@ -1,24 +1,22 @@
-"""Step 1.3: OBJECT-DISJOINT 20/80 split of the CLEANED dataset (data/clean/meta_clean.csv), plus K-shot support sets.
+"""Split the cleaned dataset into a 20 % training pool and an 80 % test set, with no scene shared between them,
+then draw the K-shot support and validation sets from the pool.
 
-The cleaning step (00_clean_dataset.py) verified, with SIFT + RANSAC, which photos show the same SCENE (same objects and/or the same
-textured background in the same place; stricter than 'same onion')
-(data/clean/pairs_verified.csv). The photographers re-used the same onions on many cloths, so the "same-scene" graph
-is highly connected: its connected components swallow up to 85 % of a class (all pile photos of a class become one
-component), and a component-wise split would leave e.g. no pile photos in the training pool. Therefore:
+The verified same-scene pairs from 02_clean_dataset.py form a graph that is very connected (the same onions were
+re-used on many cloths), so its connected components can hold 85 % of a class. Splitting by component would leave
+almost nothing to train on. Instead:
 
-  1. nodes   = capture sessions (00/01 audit groups: never split), edges = verified same-scene pairs, weight = inliers
+  1. nodes = audit groups (never split), edges = verified same-scene pairs, weight = number of inliers
   2. Louvain communities on that graph, per class (seed 0)
-  3. communities are assigned to the pool in random order until the pool holds 20 % of the class's SINGLE-onion and
-     20 % of its PILE photos (stratified by class x quantity)
-  4. PURGE: every test photo with a same-scene link to any pool photo is removed from the test set
-     (data/clean/purged_test.csv). Link = SIFT+RANSAC-verified pair OR CLIP cosine >= 0.95. Geometric verification is
-     precise but misses re-arranged piles and texture-less single onions; the CLIP threshold was set by eye on random
-     train/test pairs just below it (figures/clean_residual_*.png).
-  5. support/validation inside the pool: K communities per class for the support set; a validation photo with a
-     verified link to a support photo is dropped from that validation set (so validation is object-disjoint too).
+  3. communities go into the pool in random order until it holds 20 % of each class's single-onion photos and
+     20 % of its pile photos
+  4. purge: any test photo linked to a pool photo is removed from the test set. A link is a verified pair or a
+     CLIP cosine >= CLIP_PURGE (geometry misses re-arranged piles and texture-less single onions; 0.95 was set by
+     looking at pairs just below it, figures/clean_residual_*.png)
+  5. support / validation inside the pool: K communities per class form the support set; validation photos linked
+     to a support photo are dropped, so validation is scene-disjoint too
 
-splits/pool20.csv, splits/test80.csv, splits/support_K{K}_s{S}.csv, splits/val_K{K}_s{S}.csv,
-splits/random_pool20.csv / random_test80.csv (naive random split, leakage experiment only)
+Output: splits/pool20.csv, test80.csv, support_K{K}_s{S}.csv, val_K{K}_s{S}.csv,
+        random_pool20.csv / random_test80.csv (a naive random split, only for the leakage comparison)
 """
 import numpy as np
 import pandas as pd

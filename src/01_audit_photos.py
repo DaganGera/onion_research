@@ -1,15 +1,17 @@
-"""Step 1.2 / 2.2: audit the onion-bulb dataset and group near-identical photos.
+"""Scan the raw dataset, record every photo and give near-identical photos a shared group id.
 
-Folder layout: RAW/<health>/<variety>/<single|multiple>/OnionNNNNN.jpg  ->  4 classes (health x variety).
+Folder layout: RAW/<health>/<variety>/<single|multiple>/OnionNNNNN.jpg. Health x variety gives the 4 classes.
 
-Two photos share a GROUP (and therefore always land on the same side of the split) if they
-  (a) have identical bytes (MD5),
-  (b) have perceptual hashes within HAMMING_MAX bits (same class), or
-  (c) --refine: fall in the same CAPTURE-SESSION cluster: average-linkage agglomerative clustering of CLIP
-      embeddings within a class, cut at cosine CLIP_DUP. The dataset photographs each onion (or pile) many times
-      on the same cloth; those re-shots are near-identical for CLIP. Average linkage (not single linkage) is used
-      because single linkage chains everything into one giant group. Needs features/clip_global.pt.
-Images whose exact bytes appear under two classes are dropped.
+Two photos get the same group (and so always end up on the same side of the split) when
+  - their bytes are identical (MD5), or
+  - their perceptual hashes differ by at most HAMMING_MAX bits (first pass only), or
+  - with --refine: they fall in the same CLIP cluster inside their class (average-linkage clustering, cut at cosine
+    CLIP_DUP). The photographers shot each onion or pile many times on the same cloth, and those re-shots are almost
+    identical for CLIP. Single linkage would chain a whole class into one group, so average linkage is used.
+Photos whose exact bytes appear under two different classes are dropped.
+
+  python 01_audit_photos.py            first pass
+  python 01_audit_photos.py --refine   after 06_extract_features.py --mode global
 Output: data/meta.csv, results/audit.csv
 """
 import argparse

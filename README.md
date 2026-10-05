@@ -1,18 +1,20 @@
 # Few-shot onion bulb grading with CLIP
 
-Classifying onion bulb photos into four classes (healthy / unhealthy × red / white) from **1 to 16 labelled photos per
-class**, on frozen vision-language features. The repository contains:
+Can a model tell **healthy from unhealthy onions** (red and white, so 4 classes) after seeing only **1 to 16 photos
+per class**? This repository answers that on the public onion bulb dataset. It contains:
 
-- **a leak-free evaluation protocol** for the public onion bulb dataset (duplicate removal, same-scene detection,
-  object-disjoint purged split);
-- **an exact replication** of Ahmad et al., *Advancing Cache-Based Few-Shot Classification via Patch-Driven Relational
-  Gated Graph Attention* (arXiv:2512.12498, 2025), including its ablations;
-- **re-implementations of the methods in that paper's comparison table** (Tip-Adapter-F, TaskRes, GraphAdapter,
-  CLIP-Adapter, CLAP) plus CoOp, PlantCaFo-style multi-backbone caching, BioCLIP, SCOLD and a fine-tuned CNN;
-- **PRGA** (Prompt-grounded Region Graph Adapter) and a two-backbone variant, **PRGA + DINOv2 cache**.
+- **a clean evaluation**: duplicate photos and re-shots of the same scene are removed, and no scene appears in both
+  training and test data;
+- **a replication of the base paper**, Ahmad et al. 2025, *Advancing Cache-Based Few-Shot Classification via
+  Patch-Driven Relational Gated Graph Attention* ([arXiv:2512.12498](https://arxiv.org/abs/2512.12498)), with its
+  ablations;
+- **the methods that paper compares against** (Tip-Adapter-F, TaskRes, GraphAdapter, CLIP-Adapter, CLAP), plus CoOp,
+  a PlantCaFo-style two-backbone cache, BioCLIP, SCOLD and a fine-tuned CNN. Links and short summaries:
+  [docs/COMPARED_METHODS.md](docs/COMPARED_METHODS.md);
+- **PRGA** (Prompt-grounded Region Graph Adapter), our model, and **PRGA + DINOv2 cache**, its two-backbone version.
 
-All results: macro-F1 on 7,612 held-out test photos, mean ± std over 3 random support sets. Every design choice and
-hyper-parameter was selected on validation data; the test set was evaluated once per configuration.
+All numbers are macro-F1 on 7,612 held-out test photos, mean ± std over 3 random support sets. Every design choice was
+made on validation data; the test set was used once per configuration.
 
 ## Results
 
@@ -33,76 +35,186 @@ hyper-parameter was selected on validation data; the test set was evaluated once
 | Tip-Adapter-F on BioCLIP | BioCLIP | 0.397 ± .039 | 0.470 ± .006 | 0.511 ± .041 | 0.577 ± .048 | 0.708 ± .050 | 0.591 ± .034 |
 | Tip-Adapter-F on SCOLD | SCOLD | 0.216 ± .032 | 0.237 ± .022 | 0.325 ± .044 | 0.474 ± .011 | 0.630 ± .035 | 0.434 ± .046 |
 
-Zero-shot CLIP: 0.751 with the class descriptions used by PRGA, 0.553 with generic templates, 0.548 with
-"a photo of a [CLASS]". With 3 seeds, differences below about 2 points are not significant.
+Zero-shot CLIP (no training photos at all): 0.751 with our class descriptions, 0.553 with generic templates, 0.548
+with "a photo of a [CLASS]". With only 3 seeds, differences below about 2 points are not significant.
 
 ![Every method at every K](figures/comparison_dots.png)
 
-**Summary.** PRGA + DINOv2 cache is first or tied for first at every K except K = 2, where the PlantCaFo-style cache is
-0.9 points ahead (within the seed spread). Among single-backbone methods, PRGA is best at K = 1, 2, 4 and with all data.
-Every method from the base paper's comparison table outperforms the base paper's own model on this dataset.
+**In short.** PRGA + DINOv2 cache is first or tied for first at every K except K = 2, where the PlantCaFo-style cache
+is 0.9 points ahead (within the seed spread). Among the CLIP-only methods, PRGA is best at K = 1, 2, 4 and with all
+data. Every method from the base paper's comparison table does better than the base paper's own model on this
+dataset.
 
-## Method
+## How it works
 
-```
-photo ─┬─ CLIP ViT-B/16 ──────────────────────────────────► CLIP cache   (keys: graph-refined support photos) ─┐
-       ├─ DINOv2-S ───────────────────────────────────────► DINOv2 cache (keys fine-tuned on support views)   ─┤
-       └─ OWLv2 (text prompts) ─► boxes ─► CLIP on crops ─► PRGA graph ─► image-conditioned class prototypes  ─┼─► score
-class descriptions ─► CLIP text encoder ─┬─► text nodes of the PRGA graph                                       │
-                                         └─► zero-shot term ───────────────────────────────────────────────────┘
-```
-
-**PRGA** builds one fully connected graph per photo with up to 10 nodes: the whole photo, the OWLv2 object box, up to four
-OWLv2 regions (onion instances and lesion spots, found with text prompts) and the four class descriptions. Two layers of
-multi-head gated graph attention (edge features: cosine similarities; a sigmoid gate mixes each node's message with its
-previous state; layer normalisation) update the nodes. A readout produces a refined photo embedding, used as cache keys
-for the support photos, and the text nodes become image-conditioned class prototypes. The class score is
+### The whole pipeline
 
 ```
-score_c = 100 f·T_c  +  α Σ_j exp(−β(1 − f·K_j)) L̃_jc  +  γ 100 f·T̂_c  [+ a₂ Σ_j exp(−b₂(1 − d·D_j)) L̃_jc]
-          zero-shot      CLIP cache (class-balanced)       prototypes      DINOv2 cache (two-backbone variant)
+ ┌──────────────────┐    ┌──────────────────────┐    ┌──────────────────────────┐
+ │  12,260 photos   │───►│  1. Clean the data   │───►│  2. Split 20 % / 80 %    │
+ │  4 classes       │    │  remove duplicates   │    │  no scene in both parts  │
+ └──────────────────┘    │  and re-shots        │    └────────────┬─────────────┘
+                         └──────────────────────┘                 │
+                                                                  ▼
+ ┌────────────────────────────────────────────────────────────────────────────────┐
+ │  3. Frozen feature extractors (run once, results saved to disk)                │
+ │     CLIP ViT-B/16 (image + text)    DINOv2-S (image)    OWLv2 (finds regions)  │
+ └──────────────────────────────────────┬─────────────────────────────────────────┘
+                                        ▼
+ ┌────────────────────────────────────────────────────────────────────────────────┐
+ │  4. PRGA graph: the only part that is trained (1.1 M parameters)               │
+ │     links the photo, its regions and the 4 class descriptions                  │
+ └──────────────────────────────────────┬─────────────────────────────────────────┘
+                                        ▼
+ ┌────────────────────────────────────────────────────────────────────────────────┐
+ │  5. Score each class: zero-shot + CLIP cache + prototypes + DINOv2 cache       │
+ └──────────────────────────────────────┬─────────────────────────────────────────┘
+                                        ▼
+                healthy red / unhealthy red / healthy white / unhealthy white
 ```
 
-with `f` the photo's CLIP embedding, `T` the class-description embeddings, `T̂` the refined prototypes, `d` the DINOv2
-embedding and `L̃` class-balanced one-hot labels. α, β, γ are learned; the final α, β and the DINOv2 weights a₂, b₂ are
-chosen on validation data. The class descriptions are eight short visual descriptions per class
-(`prompts/descriptors.json`). 1.1 M trainable parameters; all backbones are frozen.
+Steps 1-2 happen once for the dataset. Step 3 runs the big pretrained networks once per photo; they are never trained.
+Steps 4-5 are the few-shot model: it trains in seconds because it only sees the saved feature vectors.
 
-## Evaluation protocol
+### Box 1: cleaning (`src/02_clean_dataset.py`)
 
-The dataset (Kulkarni et al., Mendeley Data 2025, DOI 10.17632/42bcyncfhy.1, CC BY 4.0; 12,260 bulb photos) contains
-many re-shots of the same onions and scenes. Before splitting:
+```
+ photos ──► same bytes? (MD5) ──► CLIP finds look-alike pairs ──► RootSIFT keypoints ──► RANSAC geometry check
+            drop copies           (cosine ≥ 0.92, same class)     matched on the GPU      ≥ 10 inliers = same scene
+                                                                                                │
+ 11,676 photos ◄── drop burst shots (CLIP ≥ 0.99) ◄── group all same-scene photos ◄────────────┘
+```
 
-1. integrity check and removal of 27 byte-identical duplicates (MD5);
-2. same-scene detection on 1.4 M candidate pairs: RootSIFT keypoints, GPU mutual-nearest-neighbour matching with a ratio
-   test, RANSAC homography (≥ 10 inliers); 79,194 verified pairs, none across classes;
-3. removal of 557 near-identical burst frames → **11,676 photos**;
-4. Louvain communities on the same-scene graph, a pool of 20 % stratified by class × single/pile, and a purge of every
-   test photo linked to the pool by a verified pair or a CLIP cosine ≥ 0.95 → pool 2,388, **test 7,612**.
+Of 1.4 M candidate pairs, 79,194 are confirmed as the same scene (none across classes). 27 byte-identical copies and
+557 near-identical burst frames are removed. Details: [docs/DATA_CLEANING.md](docs/DATA_CLEANING.md).
 
-On a random split, 1-nearest-neighbour reaches 0.985 macro-F1; on this split 0.883. Details, thresholds and visual checks:
-`docs/DATA_CLEANING.md`.
+### Box 2: the split (`src/04_split.py`)
 
-## Findings
+```
+ same-scene graph ──► Louvain communities ──► 20 % of communities ──► remove every test photo that is
+ (photos + pairs)     (clusters of scenes)    become the training     linked to a training photo
+                                              pool (2,388 photos)     → test set: 7,612 photos
+                                                     │
+                                                     ▼
+                    support set: K photos per class, each from a different community (3 random draws)
+                                 "all" = the pool minus 20 % of its communities
+                    validation:  the rest of the pool, minus photos linked to the support set
+```
 
-**Base-paper replication** (`docs/BASE_PAPER_REPLICATION.md`). Implemented from the paper's equations and figures, with
-every unspecified detail documented. On this dataset the graph does not help: the identical training recipe without the
-graph scores higher at every K (14 of 18 runs), and the paper's attention ablations make no measurable difference. The
-logs point to a train/test mismatch: the graph-refined training query and the plain CLIP test query have a cosine of
-about 0.78, so training moves the cache keys away from where test photos lie.
+Why it matters: on a naive random split, a 1-nearest-neighbour classifier scores 0.985 macro-F1 because near-copies of
+training photos sit in the test set. On this split it scores 0.883.
 
-**What drives PRGA** (`results/ablations_K1-4.csv`). Replacing the class descriptions with generic templates lowers K = 1
-macro-F1 from 0.796 to 0.622; removing the class-text nodes lowers it to 0.769. Replacing the OWLv2 regions with the object
-box alone or with a 3 × 3 grid makes no significant difference (0.789 / 0.799).
+### Box 3: features (`src/05_detect_regions.py`, `src/06_extract_features.py`, `src/07_text_embeddings.py`)
 
-**Second backbone.** Adding a fine-tuned DINOv2 cache was selected on held-out halves of the validation sets (0.890 →
-0.909) and improves PRGA in 16 of 18 seed-wise test comparisons (2 ties).
+```
+ photo ──► CLIP image encoder ─────────────────────────────────────────► g    whole photo, 512 numbers
+ photo ──► 10 random crops + flips ──► CLIP ───────────────────────────► 10 × 512   (training photos only)
+ photo ──► OWLv2 + text prompts ──► boxes: object, ≤ 2 onions, ≤ 2 spots ──► crop ──► CLIP ──► 5 × 512
+ photo ──► DINOv2-S ───────────────────────────────────────────────────► d    384 numbers
+ 8 descriptions per class ──► CLIP text encoder ──► average (+ ½ template) ─► T  4 × 512 (one per class)
+```
 
-**Domain-specific backbones.** BioCLIP and SCOLD transfer poorly to bulbs; SCOLD's zero-shot score is below chance.
+OWLv2 is an open-vocabulary detector: you give it text ("an onion", "black mould", "a rotten spot") and it returns
+boxes. The class descriptions are in `prompts/descriptors.json`, for example *"a red onion covered with black powdery
+mould"*.
+
+### Box 4: the PRGA graph (`src/fewshot.py`: `PRGANet`, `GatedGAT`, `Readout`)
+
+```
+ nodes (up to 10) ─┬─ [whole photo] [object] [onion 1] [onion 2] [spot 1] [spot 2]      image nodes
+                   └─ [healthy red] [unhealthy red] [healthy white] [unhealthy white]   text nodes
+        │  every node: Linear 512 → 256  +  a learned "node type" vector
+        │  every pair of nodes gets an edge feature: their cosine similarity
+        ▼
+ ┌─ gated graph-attention layer, applied twice ───────────────────────────────────┐
+ │  attention   score_ij = LeakyReLU(a·Wh_i + a'·Wh_j + u·e_ij), softmax over j   │
+ │  message     m_i = Σ_j attention_ij · W h_j        (4 heads)                   │
+ │  gate        z_i = sigmoid(W_g [h_i, m_i])         how much of the message     │
+ │  update      h_i = LayerNorm(z_i · m_i + (1 − z_i) · h_i)                      │
+ └────────────────────────────────────────────────────────────────────────────────┘
+        │                                            │
+        ▼                                            ▼
+ image nodes → mean + max + attention pool    text nodes → Linear 256 → 512, added to T
+ → Linear → added to g → f̂                    → T̂ : the 4 class descriptions adapted to this photo
+```
+
+### Box 5: the score (`PRGA._logits` in `src/fewshot.py`, `fused` in `src/13_prga_dinov2.py`)
+
+```
+ score_c =  100 · g·T_c                              zero-shot: does the photo match class c's description?
+         +  α Σ_j exp(−β (1 − g·K_j)) L̃_jc           CLIP cache: how close is it to the support photos of class c?
+         +  γ · 100 · g·T̂_c                          prototypes: the description, adapted to this photo
+         +  a₂ Σ_j exp(−b₂ (1 − d·D_j)) L̃_jc         DINOv2 cache: the same closeness, with DINOv2 features
+```
+
+`K_j` are the support photos run through the graph (f̂), `D_j` their DINOv2 vectors, `L̃` the class labels with each
+class's column divided by its number of photos. The predicted class is the highest score. Validation chose to query
+the cache with the plain CLIP vector `g` of the test photo; the graph acts through the cache keys `K_j` and the
+prototypes `T̂`.
+
+### Training
+
+```
+ for epoch in 1 … 60:
+     for each of the 10 augmented views, in random order:
+         keys  = graph(support photos)               query = this view of every support photo
+         loss  = cross-entropy(score(query), true class), label smoothing 0.1
+         AdamW step (lr 0.001, weight decay 1e-4, one-cycle schedule)
+     every 5 epochs: macro-F1 on validation → keep the best weights
+ then: pick α, β by grid search on validation
+ then: DINOv2 cache keys fine-tuned for 20 epochs, a₂, b₂ picked by grid search on validation
+```
+
+Training time for one support set is seconds to a minute on a laptop GPU. Epochs used by the other methods:
+
+| method | epochs |
+|---|---|
+| PRGA | 60, best of every 5th epoch on validation |
+| DINOv2 cache keys (in PRGA + DINOv2) | 20 |
+| base paper replication | up to 20, best epoch on validation (epoch 0 = untrained is allowed) |
+| Tip-Adapter-F, PlantCaFo-style cache | 20 |
+| CLIP-Adapter, TaskRes, GraphAdapter | 50 |
+| CLAP | 300 |
+| CoOp | 50 / 50 / 100 / 100 / 200 for K = 1 / 2 / 4 / 8 / 16, 20 with all data |
+| EfficientNet-B0 | 40, or 15 with all data |
+
+An epoch is one pass over the augmented views of every support photo.
+
+## Try it
+
+```
+uv sync
+cd src
+python demo.py              # trains PRGA + DINOv2 cache on 4 photos per class, tests on 7,612 photos
+python demo.py --mistakes   # show photos it gets wrong
+python demo.py --k 1        # one photo per class
+```
+
+It needs the cached features in `features/` and the photos in `data/raw/` (see Reproduce). It prints accuracy and
+macro-F1 and saves `figures/demo_predictions.png`. Scores can differ by up to about one point from the table because
+the table was computed on Kaggle T4 GPUs and GPU arithmetic is not bit-identical across cards.
+
+## What we found
+
+**The base paper's graph does not help on onions** ([docs/BASE_PAPER_REPLICATION.md](docs/BASE_PAPER_REPLICATION.md)).
+Implemented from the paper's equations and figures, with every unspecified detail documented. The same training recipe
+without the graph scores higher at every K (14 of 18 runs), and the paper's attention ablations make no measurable
+difference. Likely reason: training refines the query with the graph, but testing uses the plain CLIP vector; the two
+have a cosine of only about 0.78, so training moves the cache keys away from where test photos lie.
+
+**What drives PRGA** (`results/ablations_K1-4.csv`). Replacing the class descriptions with generic templates lowers
+K = 1 macro-F1 from 0.796 to 0.622; removing the text nodes lowers it to 0.769. Replacing the OWLv2 regions with the
+object box alone or with a 3 × 3 grid makes no significant difference (0.789 / 0.799).
+
+**A second backbone helps.** Adding the DINOv2 cache was chosen on held-out halves of the validation sets (0.890 →
+0.909) and improves PRGA in 16 of 18 test comparisons (2 ties).
+
+**Domain-specific backbones transfer poorly.** BioCLIP and SCOLD do much worse than plain CLIP on bulbs; SCOLD's
+zero-shot score is below chance.
 
 ## Inference cost
 
-Median time per photo, batch size 1 (`src/10_cost_benchmark.py`, `results/cost_benchmark.csv`):
+Median time per photo, one photo at a time (`src/17_cost_benchmark.py`, `results/cost_benchmark.csv`):
 
 | component | GPU (RTX 3050 Laptop, fp16) | CPU (8 threads) | parameters |
 |---|---|---|---|
@@ -112,55 +224,76 @@ Median time per photo, batch size 1 (`src/10_cost_benchmark.py`, `results/cost_b
 | PRGA head | 1.3 ms | 0.7 ms | 1.1 M |
 | OWLv2-B/16 detection | 126.9 ms | not measured | 155 M |
 
-The full pipeline costs about 165 ms per photo on this GPU, of which OWLv2 accounts for about 77 %. Since the region nodes
-did not measurably improve accuracy in the ablations, a variant without OWLv2 (CLIP + DINOv2 + head, about 16 ms per photo)
-is the natural deployment candidate; its accuracy has not yet been validated end to end. Training the few-shot head takes
-seconds once the frozen features are cached.
+The full pipeline takes about 165 ms per photo on this GPU, and OWLv2 is about 77 % of that. Since the regions did not
+measurably improve accuracy in the ablations, a version without OWLv2 (about 16 ms per photo) is the obvious next
+step; its accuracy has not been tested yet.
 
 ## Repository
 
 ```
 src/
-  00_clean_dataset.py, 00b_clean_inspect.py   cleaning and visual checks
-  01_audit_dedup.py, 02_split.py              audit and the object-disjoint split
-  03_regions_owlv2.py                         OWLv2 region boxes
-  04_features.py, 04b_*, 04c_*                frozen CLIP / DINOv2 / BioCLIP / SCOLD features
-  05_text.py                                  class text embeddings (templates and descriptions)
-  basepaper.py, 06d_basepaper_exact.py        base-paper model and its training (+ ablations, no-graph control)
-  06_baselines.py, sota.py, 06e_sota.py       baselines and comparison methods
-  06b_*, 06c_*, fewshot_paper.py              controlled study: the paper's graph on different node types
-  fewshot.py, 07_prga.py, 07b_*, 07c_*        PRGA, ablations, validation-only model selection
-  08_cnn_baseline.py                          EfficientNet-B0
-  09_eval.py, 09b_comparison_figure.py        tables and figures
-  10_cost_benchmark.py                        inference cost
-kaggle/                                       pipeline scripts and kernel entry points (Kaggle, 2 × T4)
-docs/                                         data-cleaning protocol and base-paper replication report
+  01_audit_photos.py        list every photo, group identical ones
+  02_clean_dataset.py       remove duplicates and same-scene re-shots      (box 1)
+  03_check_cleaning.py      pictures for checking the cleaning by eye
+  04_split.py               scene-disjoint split, support and validation sets   (box 2)
+  05_detect_regions.py      OWLv2 boxes                                     (box 3)
+  06_extract_features.py    CLIP / DINOv2 / BioCLIP / SCOLD features        (box 3)
+  07_text_embeddings.py     class description vectors                       (box 3)
+  08_baselines.py           zero-shot, linear probe, Tip-Adapter(-F), PlantCaFo-style, leakage check
+  09_base_paper.py          the base paper's model, trained and tested
+  10_comparison_methods.py  CLIP-Adapter, TaskRes, CLAP, GraphAdapter, CoOp
+  11_prga.py                PRGA and its ablations                          (boxes 4-5)
+  12_prga_select.py         choose PRGA's configuration on validation
+  13_prga_dinov2.py         PRGA + DINOv2 cache, the final model
+  14_cnn_baseline.py        EfficientNet-B0
+  15_tables_and_figures.py  results table and figures
+  16_comparison_figure.py   the dot-chart comparison
+  17_cost_benchmark.py      time per photo
+  demo.py                   train and test the final model in one go
+
+  common.py      paths, classes, seeds, metrics          fewshot.py   feature store, baselines, PRGA
+  backbones.py   loads the frozen networks               adapters.py  comparison methods
+  basepaper.py   the base paper's model                  harness.py   runs a method over all K and seeds
+kaggle/          scripts that ran everything on Kaggle (2 × T4 GPUs)
+docs/            code guide, data cleaning, base-paper replication, compared methods
 prompts/  regions/  splits/  data/clean/  results/  figures/
 ```
+
+A file-by-file walk through the code, with the shapes of every tensor: [docs/CODE_GUIDE.md](docs/CODE_GUIDE.md).
 
 ## Reproduce
 
 ```
 uv sync
-# photos: data/raw/onion_bulbs/Onion Image Dataset/2. Bulb   (or set ONION_RAW)
+# photos: data/raw/onion_bulbs/Onion Image Dataset/2. Bulb   (or set ONION_RAW to their folder)
 cd src
-python 01_audit_dedup.py && python 00_clean_dataset.py && python 02_split.py
-python 03_regions_owlv2.py
-python 04_features.py --backbone clip --mode global      # and the other feature steps in kaggle/run_pipeline.sh
-bash ../kaggle/run_pipeline.sh                          # all methods, all K and seeds, tables and figures
-python 07c_prga_improve.py                              # PRGA + DINOv2 cache: validation-only selection, then test
+python 01_audit_photos.py
+python 06_extract_features.py --backbone clip --mode global
+python 01_audit_photos.py --refine
+python 02_clean_dataset.py && python 03_check_cleaning.py --bands
+python 04_split.py && python 03_check_cleaning.py --leakcheck
+python 05_detect_regions.py
+python 06_extract_features.py --backbone clip --mode aug        # also: --mode grid, --mode regions
+python 06_extract_features.py --backbone dinov2 --mode global   # also --mode aug; the same for bioclip and scold
+python 07_text_embeddings.py                                   # also --backbone bioclip / scold
+bash ../kaggle/run_pipeline.sh                                 # every method, all K and seeds, tables, figures
+bash ../kaggle/run_extra.sh                                    # PRGA + DINOv2 cache
 ```
 
-Every training step is resumable; finished (method, K, seed) runs are skipped.
+Every training script can be stopped and restarted: finished (method, K, seed) runs are skipped.
 
 ## Limitations
 
-- One dataset (one phone, one site, four classes); transfer to other crops and cameras is untested.
-- Three seeds per setting; small differences are within noise.
-- The base paper has no public code; its replication fills documented gaps.
-- Comparison methods are re-implementations of each method's core formulation on frozen features, not the authors'
-  code. Ta-Adapter and CAA were not re-implemented.
-- Same-scene detection groups photos that share a textured background even when the onions differ, which makes the split
-  conservative; a small fraction of test photos may still share an onion with training photos without a detectable
-  geometric match.
-- Image-level labels only.
+- One dataset (one phone, one site, four classes); other crops and cameras are untested.
+- Three seeds per setting, so small differences are within noise.
+- The base paper has no public code; the replication fills documented gaps.
+- The comparison methods are our re-implementations of each paper's main equation on frozen features, not the
+  authors' code. Ta-Adapter and CAA were not re-implemented.
+- Same-scene detection also groups photos that only share a textured background, which makes the split conservative.
+  A few test photos may still show an onion from the training pool without a detectable geometric match.
+- Labels are per photo, not per onion.
+
+## Data
+
+Kulkarni et al., onion bulb image dataset, Mendeley Data 2025, DOI
+[10.17632/42bcyncfhy.1](https://doi.org/10.17632/42bcyncfhy.1), CC BY 4.0.

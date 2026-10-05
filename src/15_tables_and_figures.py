@@ -1,9 +1,10 @@
-"""Step 2.5 / 5.4: collect every run into the main table and draw the paper figures.
+"""Collect every finished run into the results table and draw the figures.
 
-results/main_table.csv / .md    mean ± std macro-F1 and accuracy per method and K (3 seeds)
-figures/f1_vs_shots.png          macro-F1 vs K for the key methods
-figures/confusion_prga.png       PRGA confusion matrix (K=8, seed 1)
-figures/per_class_f1.png         per-class F1: PRGA vs Tip-Adapter-F (K=8, 3 seeds)
+results/main_table.csv / .md    macro-F1 mean +- std per method and K (3 seeds)
+figures/f1_vs_shots.png         macro-F1 vs K for the main methods
+figures/f1_vs_shots_sota.png    the same for the base paper's comparison methods
+figures/confusion_prga.png      PRGA confusion matrix
+figures/per_class_f1.png        per-class F1, PRGA vs Tip-Adapter-F
 """
 import glob
 from pathlib import Path
@@ -19,29 +20,29 @@ from sklearn.metrics import confusion_matrix, f1_score
 from common import CLASSES, FIGURES, RESULTS, SEEDS, SPLITS
 
 K_ORDER = ["1", "2", "4", "8", "16", "full"]
-# reference palette (dataviz skill), fixed slot order; identity follows the method, never its rank
-SERIES = {"PRGA2Bft-clip": ("PRGA + DINOv2 cache (ours, 2 backbones)", "#0d366b"),
-          "PRGA-clip": ("PRGA (ours, 1 backbone)", "#2a78d6"),
+# one fixed colour per method, so a method keeps its colour in every figure
+SERIES = {"PRGA2Bft-clip": ("PRGA + DINOv2 cache (2 backbones)", "#0d366b"),
+          "PRGA-clip": ("PRGA (1 backbone)", "#2a78d6"),
           "TipAdapterF-clip": ("Tip-Adapter-F", "#eb6834"),
           "BasePaperExact": ("Base paper, exact replication", "#4a3aa7"),
           "BasePaperExact-noGraph": ("Same recipe, no graph (control)", "#8f8a80"),
-          "PlantCaFoLite-clip": ("PlantCaFo-lite", "#eda100"),
+          "PlantCaFoLite-clip": ("PlantCaFo-style cache", "#eda100"),
           "EfficientNetB0-finetune": ("EfficientNet-B0", "#e87ba4"),
           "LinearProbe-clip": ("Linear probe", "#008300")}
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 LS = {"BasePaperExact-noGraph": (0, (5, 2))}              # dashed: control
-# the methods of the base paper's own comparison table (Table 1), re-implemented here
-SOTA = {"BasePaperExact": ("Base paper (Ahmad et al. 2025), exact", "#4a3aa7"),
+# the methods from the base paper's own comparison table (Table 1), re-implemented in adapters.py
+COMPARED = {"BasePaperExact": ("Base paper (Ahmad et al. 2025), exact", "#4a3aa7"),
         "TipAdapterF-clip": ("Tip-Adapter-F (ECCV'22)", "#eb6834"),
         "TaskRes-clip": ("TaskRes (CVPR'23)", "#008300"),
         "GraphAdapterLite-clip": ("GraphAdapter-lite (NeurIPS'23)", "#e87ba4"),
         "CLIPAdapter-clip": ("CLIP-Adapter (IJCV'24)", "#eda100"),
         "CLAP-clip": ("CLAP (CVPR'24)", "#1baab0"),
         "CoOp-clip": ("CoOp (IJCV'22)", "#8f8a80"),
-        "PlantCaFoLite-clip": ("PlantCaFo-lite (2 backbones)", "#8a5a00"),
-        "PRGA-clip": ("PRGA (ours, 1 backbone)", "#2a78d6"),
-        "PRGA2Bft-clip": ("PRGA + DINOv2 cache (ours, 2 backbones)", "#0d366b")}
-EXCLUDE = {"GridGraph_basepaper-clip", "PRGA-clip-samefeats"}                    # superseded simplified variant of the base paper: not shown, not tabulated
+        "PlantCaFoLite-clip": ("PlantCaFo-style cache (2 backbones)", "#8a5a00"),
+        "PRGA-clip": ("PRGA (1 backbone)", "#2a78d6"),
+        "PRGA2Bft-clip": ("PRGA + DINOv2 cache (2 backbones)", "#0d366b")}
+EXCLUDE = {"PRGA-clip-samefeats"}      # a re-run of PRGA used only inside 13_prga_dinov2.py as a sanity reference
 
 
 def load_runs():
@@ -68,7 +69,6 @@ def main_table(df):
     tab.to_csv(RESULTS / "main_table_long.csv", index=False)
     cell = tab.assign(v=lambda t: t.f1_mean.map("{:.3f}".format) + " ± " + t.f1_std.map("{:.3f}".format))
     wide = cell.pivot(index="method", columns="K", values="v").reindex(columns=[k for k in K_ORDER if k in cell.K.values])
-    zs = df[df.method.str.startswith("ZeroShot")]
     order = tab[tab.K == "4"].sort_values("f1_mean").method.tolist()
     wide = wide.reindex([m for m in order if m in wide.index] + [m for m in wide.index if m not in order])
     wide.to_csv(RESULTS / "main_table.csv")
@@ -170,7 +170,7 @@ def main():
     df = load_runs()
     tab = main_table(df)
     fig_lines(tab)
-    fig_lines(tab, SOTA, "f1_vs_shots_sota.png", "Base paper and its SOTA comparison methods, on onion bulbs")
+    fig_lines(tab, COMPARED, "f1_vs_shots_sota.png", "Base paper and the methods it compares against, on onion bulbs")
     fig_confusion()
     fig_per_class()
 
