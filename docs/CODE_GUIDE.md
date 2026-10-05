@@ -267,6 +267,8 @@ chosen on validation. Each configuration was run on the test set once.
 **Why 3 seeds?** Different support photos give very different results at K = 1 (± 0.06). Three seeds show that spread;
 differences below about 2 points are within it.
 
+**Why use CLIP when OWLv2 already contains a CLIP-like encoder?** OWLv2's encoder has its own weights, fine-tuned for finding objects. We use OWLv2 only to find the boxes; the crops are encoded with the same CLIP as the whole photo and the class texts, so all graph nodes live in one vector space and the cosine edges mean something. Full answer: [MODELS_EXPLAINED.md](MODELS_EXPLAINED.md#5-why-both-owlv2-and-clip).
+
 **Why are your numbers on my laptop slightly different?** The table was computed on Kaggle T4 GPUs. GPU arithmetic is
 not bit-identical across cards, and small differences during training change which epoch is best. Same code, same
 laptop → same numbers.

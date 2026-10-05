@@ -143,6 +143,12 @@ def tip_logits(q, keys, L, T, alpha, beta, zs_q=None):
 ALPHAS, BETAS = (0.5, 1, 2, 3, 5, 8, 12), (1, 3, 5, 7, 9)
 
 
+def eval_epochs(epochs):
+    """The 10 evenly spaced epochs at which validation is checked when pick_epoch is on."""
+    every = max(1, epochs // 10)
+    return {e for e in range(every, epochs + 1, every)} | {epochs}
+
+
 def search_ab(score_fn, va):
     if len(va) == 0:
         return 1.0, 5.0
@@ -167,9 +173,16 @@ class TipAdapter:
 class TipAdapterF(TipAdapter):
     """Tip-Adapter-F: cache keys become learnable and are fine-tuned on augmented support views."""
 
+    pick_epoch = False          # True: keep the best checkpoint on validation (18_equal_training.py)
+
     def __init__(self, T, epochs=20, lr=1e-3, **_):
         super().__init__(T)
         self.epochs, self.lr = epochs, lr
+
+    def _val_score(self, keys, L, va):
+        k = keys.detach().cpu()
+        a, b = search_ab(lambda a, b: tip_logits(va.g, k, L.cpu(), self.T, a, b), va)
+        return macro_f1(tip_logits(va.g, k, L.cpu(), self.T, a, b), va.y), k
 
     def fit(self, tr, va):
         T = self.T.to(DEVICE)
@@ -178,11 +191,17 @@ class TipAdapterF(TipAdapter):
         X, Y = tr.aug.to(DEVICE), tr.y.to(DEVICE)
         opt = torch.optim.AdamW([keys], lr=self.lr, eps=1e-4)
         sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, self.epochs * X.shape[1])
-        for _ in range(self.epochs):
+        check = eval_epochs(self.epochs) if self.pick_epoch and len(va) else set()
+        best, self.best_epoch = None, self.epochs
+        for ep in range(self.epochs):
             for v in torch.randperm(X.shape[1]):
                 loss = F.cross_entropy(tip_logits(X[:, v], keys, L, T, 5.0, 5.0), Y)   # alpha_train=5 chosen on val
                 opt.zero_grad(); loss.backward(); opt.step(); sched.step()
-        self.keys, self.L = keys.detach().cpu(), L.cpu()
+            if ep + 1 in check:
+                sc, k = self._val_score(keys, L, va)
+                if best is None or sc > best[0]:
+                    best, self.best_epoch = (sc, k), ep + 1
+        self.keys, self.L = (best[1] if best else keys.detach().cpu()), L.cpu()
         self.a, self.b = search_ab(lambda a, b: tip_logits(va.g, self.keys, self.L, self.T, a, b), va)
         return self
 
@@ -190,6 +209,8 @@ class TipAdapterF(TipAdapter):
 class PlantCaFoLite:
     """Re-implementation of PlantCaFo's idea: several foundation-model caches (CLIP + DINOv2) fused with the
     CLIP zero-shot prior, each cache fine-tuned Tip-Adapter-F style. Not the authors' code."""
+
+    pick_epoch = False          # True: keep the best checkpoint on validation (18_equal_training.py)
 
     def __init__(self, T, epochs=20, lr=1e-3, **_):
         self.T, self.epochs, self.lr = T, epochs, lr
@@ -206,18 +227,31 @@ class PlantCaFoLite:
         L = onehot(tr.y).to(DEVICE)
         X, X2, Y = tr.aug.to(DEVICE), tr.aug2.to(DEVICE), tr.y.to(DEVICE)
         opt = torch.optim.AdamW([k1, k2], lr=self.lr, eps=1e-4)
-        for _ in range(self.epochs):
+        check = eval_epochs(self.epochs) if self.pick_epoch and len(va) else set()
+        best, self.best_epoch = None, self.epochs
+        for ep in range(self.epochs):
             for v in torch.randperm(X.shape[1]):
                 loss = F.cross_entropy(self._logits(X[:, v], X2[:, v], k1, k2, L, T, 2.5, 2.5, 5), Y)
                 opt.zero_grad(); loss.backward(); opt.step()
+            if ep + 1 in check:
+                self.k1, self.k2, self.L = k1.detach().cpu(), k2.detach().cpu(), L.cpu()
+                hp, sc = self._search(va)
+                if best is None or sc > best[0]:
+                    best, self.best_epoch = (sc, self.k1, self.k2, hp), ep + 1
+        if best:
+            _, self.k1, self.k2, self.hp = best
+            self.L = L.cpu()
+            return self
         self.k1, self.k2, self.L = k1.detach().cpu(), k2.detach().cpu(), L.cpu()
-        grid = list(itertools.product((0.5, 1, 2, 4, 8), (0.5, 1, 2, 4, 8), (1, 3, 5, 7)))
-        if len(va):
-            self.hp = max(grid, key=lambda h: macro_f1(self._logits(va.g, va.g2, self.k1, self.k2, self.L,
-                                                                    self.T, *h), va.y))
-        else:
-            self.hp = (1, 1, 5)
+        self.hp = self._search(va)[0] if len(va) else (1, 1, 5)
         return self
+
+    def _search(self, va):
+        """Grid over the two cache weights and the shared sharpness, on validation."""
+        grid = list(itertools.product((0.5, 1, 2, 4, 8), (0.5, 1, 2, 4, 8), (1, 3, 5, 7)))
+        score = lambda h: macro_f1(self._logits(va.g, va.g2, self.k1, self.k2, self.L, self.T, *h), va.y)  # noqa: E731
+        hp = max(grid, key=score)
+        return hp, score(hp)
 
     def predict(self, te):
         return self._logits(te.g, te.g2, self.k1, self.k2, self.L, self.T, *self.hp).softmax(1)

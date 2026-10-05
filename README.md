@@ -45,7 +45,48 @@ is 0.9 points ahead (within the seed spread). Among the CLIP-only methods, PRGA 
 data. Every method from the base paper's comparison table does better than the base paper's own model on this
 dataset.
 
+### Fairness check: same GPU, every method picks its best epoch
+
+In the table above PRGA and the base paper keep their best checkpoint on validation, while the other trained methods
+use their last epoch, and the runs were on Kaggle T4 GPUs. `src/18_equal_training.py` removes both differences: every
+method is re-run on one GPU (RTX 3050 laptop), the comparison methods train for twice their usual number of epochs, and
+each keeps the best of 10 validation checkpoints. Macro-F1, mean ± std over 3 seeds (`results/equal_training.md`):
+
+| method | K=1 | K=2 | K=4 | K=8 | K=16 | all |
+|---|---|---|---|---|---|---|
+| **PRGA + DINOv2 cache** | 0.793 ± .063 | 0.862 ± .010 | **0.890** ± .024 | **0.930** ± .030 | **0.955** ± .017 | **0.985** ± .001 |
+| **PRGA** | 0.782 ± .055 | 0.827 ± .049 | 0.871 ± .022 | 0.888 ± .059 | 0.932 ± .018 | **0.985** ± .001 |
+| PlantCaFo-style cache | **0.796** ± .052 | **0.869** ± .012 | 0.881 ± .035 | 0.924 ± .027 | 0.943 ± .021 | 0.974 ± .014 |
+| GraphAdapter | 0.795 ± .026 | 0.805 ± .034 | 0.808 ± .014 | 0.853 ± .016 | 0.896 ± .016 | 0.954 ± .015 |
+| CLIP-Adapter | 0.787 ± .035 | 0.803 ± .023 | 0.811 ± .018 | 0.896 ± .047 | 0.947 ± .009 | 0.978 ± .003 |
+| Tip-Adapter-F | 0.759 ± .033 | 0.808 ± .054 | 0.827 ± .026 | 0.869 ± .054 | 0.923 ± .006 | 0.935 ± .012 |
+| TaskRes | 0.741 ± .097 | 0.779 ± .043 | 0.837 ± .018 | 0.880 ± .047 | 0.942 ± .010 | 0.972 ± .014 |
+| CLAP | 0.704 ± .099 | 0.759 ± .026 | 0.805 ± .033 | 0.885 ± .038 | 0.936 ± .011 | 0.973 ± .008 |
+| CoOp | 0.666 ± .069 | 0.706 ± .056 | 0.813 ± .048 | 0.886 ± .031 | 0.943 ± .006 | 0.976 (1 seed) |
+
+Best-epoch selection helps some methods (TaskRes +5 points and GraphAdapter +5 points at K = 1, Tip-Adapter-F +4
+points with all data). After it, **PRGA + DINOv2 cache is still best at K = 4, 8, 16 and with all data. At K = 1 and
+2 it is tied with the PlantCaFo-style cache** (and with GraphAdapter at K = 1): the gaps of 0.3-0.7 points are far
+inside the seed spread. Laptop and Kaggle numbers for the same code differ by up to about 2 points (GPU arithmetic),
+so compare within one table, not across them. CoOp with all photos was stopped early to free the GPU (2 of 3 seeds at
+the usual length, 1 at double length); `python 18_equal_training.py --methods coop` resumes it.
+
 ## How it works
+
+Diagrams of every part, with the code explained step by step and the parameter count of every model:
+[docs/MODELS_EXPLAINED.md](docs/MODELS_EXPLAINED.md).
+
+![The whole pipeline](figures/arch_pipeline.png)
+
+The same pipeline as a graph of nodes, following one test photo:
+
+![Pipeline as nodes](figures/arch_pipeline_nodes.png)
+
+| base paper | PRGA | PRGA + DINOv2 cache |
+|---|---|---|
+| ![](figures/arch_base_paper.png) | ![](figures/arch_prga.png) | ![](figures/arch_prga_dinov2.png) |
+
+The same in text form:
 
 ### The whole pipeline
 
@@ -249,13 +290,15 @@ src/
   15_tables_and_figures.py  results table and figures
   16_comparison_figure.py   the dot-chart comparison
   17_cost_benchmark.py      time per photo
+  18_equal_training.py      fairness check: every method picks its best epoch on validation
+  19_architecture_figures.py  the architecture diagrams
   demo.py                   train and test the final model in one go
 
   common.py      paths, classes, seeds, metrics          fewshot.py   feature store, baselines, PRGA
   backbones.py   loads the frozen networks               adapters.py  comparison methods
   basepaper.py   the base paper's model                  harness.py   runs a method over all K and seeds
 kaggle/          scripts that ran everything on Kaggle (2 × T4 GPUs)
-docs/            code guide, data cleaning, base-paper replication, compared methods
+docs/            models explained, code guide, data cleaning, base-paper replication, compared methods
 prompts/  regions/  splits/  data/clean/  results/  figures/
 ```
 

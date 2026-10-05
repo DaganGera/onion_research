@@ -15,12 +15,14 @@ These follow each paper's main equation, not the authors' code. All use the same
 (our descriptions; CoOp learns its own prompt) and validation-chosen hyper-parameters, so the comparison is fair.
 """
 
+import copy
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from common import CLASSES, CLIP_NAME, DEVICE, l2n
-from fewshot import macro_f1
+from fewshot import eval_epochs, macro_f1
 
 
 def _views(tr):
@@ -28,34 +30,58 @@ def _views(tr):
     return X.flatten(0, 1), tr.y.to(DEVICE).repeat_interleave(X.shape[1])
 
 
-def _train(params, loss_fn, X, Y, epochs, lr, bs=256, opt="adamw"):
+def _train(params, loss_fn, X, Y, epochs, lr, bs=256, opt="adamw", on_epoch=None):
     o = (torch.optim.AdamW(params, lr=lr, eps=1e-4) if opt == "adamw"
          else torch.optim.SGD(params, lr=lr, momentum=0.9))
     steps = epochs * max(1, -(-len(X) // bs))
     sch = torch.optim.lr_scheduler.CosineAnnealingLR(o, steps)
-    for _ in range(epochs):
+    for ep in range(epochs):
         for idx in torch.randperm(len(X), device=X.device).split(bs):
             loss = loss_fn(X[idx], Y[idx])
             o.zero_grad()
             loss.backward()
             o.step()
             sch.step()
+        if on_epoch is not None:
+            on_epoch(ep + 1)
 
 
 class _Selectable:
-    """Fit once per candidate hyper-parameter, keep the best on validation (falls back to the first if no val)."""
+    """Fit once per candidate hyper-parameter, keep the best on validation (falls back to the first if no val).
+    With pick_epoch = True, each run also keeps its best checkpoint on validation instead of the last epoch."""
     grid = [None]
+    pick_epoch = False
 
     def fit(self, tr, va):
-        best = None
+        self._va, best = va, None
         for hp in self.grid:
             torch.manual_seed(0)
+            self._ckpt = None
             state = self._fit(tr, hp)
-            s = macro_f1(self._logits(state, va.g.to(DEVICE)), va.y) if len(va) else 0.0
+            if self._ckpt is not None:                      # best checkpoint of this run
+                s, state, ep = self._ckpt
+            else:
+                s = macro_f1(self._logits(state, va.g.to(DEVICE)), va.y) if len(va) else 0.0
+                ep = self.epochs
             if best is None or s > best[0]:
-                best = (s, state)
-        self.state = best[1]
+                best = (s, state, ep)
+        self.state, self.best_epoch = best[1], best[2]
         return self
+
+    def _hook(self, st):
+        """Called after every epoch: on the evaluation epochs, score validation and remember the best state."""
+        if not self.pick_epoch or not len(self._va):
+            return None
+        check = eval_epochs(self.epochs)
+
+        def on_epoch(ep):
+            if ep not in check:
+                return
+            with torch.no_grad():
+                s = macro_f1(self._logits(st, self._va.g.to(DEVICE)), self._va.y)
+            if self._ckpt is None or s > self._ckpt[0]:
+                self._ckpt = (s, copy.deepcopy(st), ep)
+        return on_epoch
 
     @torch.no_grad()
     def predict(self, te):
@@ -73,7 +99,8 @@ class CLIPAdapter(_Selectable):
                             nn.ReLU()).to(DEVICE)
         st = dict(mlp=mlp, r=r)
         X, Y = _views(tr)
-        _train(mlp.parameters(), lambda x, y: F.cross_entropy(self._logits(st, x), y), X, Y, self.epochs, self.lr)
+        _train(mlp.parameters(), lambda x, y: F.cross_entropy(self._logits(st, x), y), X, Y, self.epochs, self.lr,
+               on_epoch=self._hook(st))
         return st
 
     def _logits(self, st, f):
@@ -93,7 +120,8 @@ class TaskRes(_Selectable):
         R = nn.Parameter(torch.zeros_like(self.T))
         st = dict(R=R, a=a)
         X, Y = _views(tr)
-        _train([R], lambda x, y: F.cross_entropy(self._logits(st, x), y), X, Y, self.epochs, self.lr)
+        _train([R], lambda x, y: F.cross_entropy(self._logits(st, x), y), X, Y, self.epochs, self.lr,
+               on_epoch=self._hook(st))
         return st
 
     def _logits(self, st, f):
@@ -120,7 +148,7 @@ class CLAP(_Selectable):
         def loss(x, y):
             return F.cross_entropy(self._logits(st, x), y) + (lam[:, None] * (W - self.T) ** 2).sum(1).mean()
 
-        _train([W], loss, X, Y, self.epochs, lr, opt="sgd")
+        _train([W], loss, X, Y, self.epochs, lr, opt="sgd", on_epoch=self._hook(st))
         return st
 
     def _logits(self, st, f):
@@ -149,7 +177,8 @@ class GraphAdapter(_Selectable):
         nn.init.eye_(lin.weight)
         st = dict(lin=lin, H=H, A=self._norm_adj(H), b=b)
         X, Y = _views(tr)
-        _train(lin.parameters(), lambda x, y: F.cross_entropy(self._logits(st, x), y), X, Y, self.epochs, self.lr)
+        _train(lin.parameters(), lambda x, y: F.cross_entropy(self._logits(st, x), y), X, Y, self.epochs, self.lr,
+               on_epoch=self._hook(st))
         return st
 
     def _logits(self, st, f):
@@ -164,6 +193,7 @@ class CoOp:
     """Context optimisation: M learnable context vectors replace the template words; the CLIP text encoder is frozen
     but back-propagated through. Epochs per K follow the CoOp paper (50 for 1-2 shots, 100 for 4-8, 200 for 16)."""
 
+    pick_epoch = False
     EPOCHS = {"1": 50, "2": 50, "4": 100, "8": 100, "16": 200, "full": 20}
 
     def __init__(self, K="1", init="a photo of a", lr=2e-3, bs=32, **_):
@@ -192,8 +222,22 @@ class CoOp:
 
     def fit(self, tr, va):
         X, Y = _views(tr)
+        best = [-1.0, None, self.epochs]            # validation score, context vectors, epoch (pick_epoch only)
+        check = eval_epochs(self.epochs)
+
+        def on_epoch(ep):
+            if not self.pick_epoch or not len(va) or ep not in check:
+                return
+            with torch.no_grad():
+                s = macro_f1(100 * va.g.to(DEVICE) @ self.text_features().T, va.y)
+            if s > best[0]:
+                best[:] = [s, self.ctx.detach().clone(), ep]
+
         _train([self.ctx], lambda x, y: F.cross_entropy(100 * x @ self.text_features().T, y), X, Y,
-               self.epochs, self.lr, bs=self.bs, opt="sgd")
+               self.epochs, self.lr, bs=self.bs, opt="sgd", on_epoch=on_epoch)
+        if best[1] is not None:
+            self.ctx.data.copy_(best[1])
+        self.best_epoch = best[2]
         with torch.no_grad():
             self.T = self.text_features()
         return self
