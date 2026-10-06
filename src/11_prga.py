@@ -2,6 +2,7 @@
 
   python 11_prga.py                           PRGA with the configuration chosen on validation (12_prga_select.py)
   python 11_prga.py --ablations --shots 1 4   remove one part at a time -> results/ablations_K1-4.csv
+  (--backbone clip_l14 runs the ablations on another backbone)
 """
 import ast
 import argparse
@@ -43,6 +44,7 @@ def main():
     ap.add_argument("--ablations", action="store_true")
     ap.add_argument("--shots", nargs="+", default=ALL_K)
     ap.add_argument("--only", nargs="*", default=None)
+    ap.add_argument("--backbone", default="clip")
     a = ap.parse_args()
     if not a.ablations:
         T = load_text("clip", "desc")
@@ -51,17 +53,19 @@ def main():
         store = Store("clip", second="dinov2" if cfg.get("second") else None, need=("global", "aug", "regions"))
         run("PRGA-clip", lambda: PRGA(T, **cfg), store, shots=a.shots)
         return
-    store = Store("clip", need=("global", "aug", "grid", "regions"))
+    bb = a.backbone
+    store = Store(bb, need=("global", "aug", "grid", "regions"))
     rows = []
     for name, (kw, text) in ABLATIONS.items():
         if a.only and name not in a.only:
             continue
-        T = load_text("clip", text)
-        df = run(name, lambda: PRGA(T, **kw), store, shots=a.shots, save_preds=False, tag="_abl")
+        T = load_text(bb, text)
+        df = run(name, lambda: PRGA(T, **kw), store, shots=a.shots, save_preds=False,
+                 tag="_abl" if bb == "clip" else f"_abl_{bb}")
         rows.append(df)
     out = pd.concat(rows)
     summ = out.groupby(["method", "K"])[["acc", "macro_f1"]].agg(["mean", "std"]).round(4)
-    summ.to_csv(RESULTS / f"ablations_K{'-'.join(a.shots)}.csv")
+    summ.to_csv(RESULTS / f"ablations_K{'-'.join(a.shots)}{'' if bb == 'clip' else '_' + bb}.csv")
     print(summ.to_string())
 
 

@@ -3,6 +3,8 @@
   .venv/bin/python app.py            then open http://127.0.0.1:7860
   .venv/bin/python app.py --share    also prints a temporary public link (e.g. for a mentor)
 
+Per photo: calibrated class probabilities (with a "not sure" flag), the regions PRGA's graph uses and how much each
+one matters, a breakdown of the score into its four parts, and a text search ("a varroa mite") inside the photo.
 The app only predicts; the models were trained on Kaggle by src/24_export_app_model.py and saved in checkpoints/.
 Research prototype: see README.md and domains/bees/README.md for what the scores mean.
 """
@@ -11,23 +13,30 @@ import sys
 from pathlib import Path
 
 import gradio as gr
+import matplotlib
+import numpy as np
 from PIL import ImageDraw
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
-from app_model import Predictor  # noqa: E402
+from app_model import PARTS, Predictor  # noqa: E402
 
 CKPT = ROOT / "checkpoints"
 EXAMPLES = ROOT / "app_examples"
 DOMAINS = {
-    "onion": dict(title="Onion bulbs", what="a photo of one or more onion bulbs",
-                  note="4 classes: healthy / unhealthy × red / white. Trained on 1 photo set from one site."),
+    "onion": dict(title="Onion bulbs", what="a photo of one or more onion bulbs", search="black mould, a rotten spot",
+                  note="4 classes: healthy / unhealthy × red / white. Trained on photos from one site."),
     "bees": dict(title="Honeybees (Varroa mite)", what="a close-up of a single bee, seen from above",
+                 search="a varroa mite",
                  note="2 classes: healthy bee / bee with a Varroa mite. Trained on lab video crops; "
-                      "scores on new videos are modest (macro-F1 about 0.7)."),
+                      "on new videos macro-F1 is about 0.7."),
 }
 TRAINED_ON = {"4 photos per class": "4", "all training photos": "full"}
 COLORS = {"object": (0, 170, 0), "instance": (30, 110, 255), "spot": (230, 30, 30)}
+SEARCH_COLOR = (160, 32, 240)
 _models = {}
 
 
@@ -37,33 +46,75 @@ def predictor(domain, K):
     return _models[domain, K]
 
 
-def draw(im, r):
+def draw(im, r, found):
     im = im.convert("RGB").copy()
     d = ImageDraw.Draw(im)
     w = max(2, im.width // 250)
-    if r.get("object"):
-        d.rectangle(r["object"]["box"], outline=COLORS["object"], width=w)
-    for x in r["regions"]:
-        d.rectangle(x["box"], outline=COLORS[x["kind"]], width=w)
+    boxes = ([("object", r["object"]["box"])] if r.get("object") else []) + [(x["kind"], x["box"]) for x in r["regions"]]
+    for i, (kind, b) in enumerate(boxes):
+        d.rectangle(b, outline=COLORS[kind], width=w)
+        d.text((b[0] + 3, b[1] + 2), str(i), fill=COLORS[kind])
+    for f in found:
+        d.rectangle(f["box"], outline=SEARCH_COLOR, width=w + 1)
+        d.text((f["box"][0] + 3, f["box"][3] - 12), f"{f['owl']:.2f}", fill=SEARCH_COLOR)
     return im
+
+
+def breakdown_plot(parts, classes):
+    """each part's push towards each class, relative to that part's average over the classes."""
+    v = (parts - parts.mean(1, keepdims=True)).numpy()
+    fig, ax = plt.subplots(figsize=(6.4, 0.8 + 0.55 * len(classes) * len(PARTS) / 2))
+    y = np.arange(len(PARTS))
+    h = 0.8 / len(classes)
+    cols = ["#2a6fdb", "#e07b39", "#3b9c5a", "#9b59b6"]
+    for c, name in enumerate(classes):
+        ax.barh(y + c * h, v[:, c], height=h, color=cols[c % 4], label=name)
+    ax.axvline(0, color="#666", lw=0.8)
+    ax.set_yticks(y + h * (len(classes) - 1) / 2, [p.split(" (")[0] for p in PARTS], fontsize=9)
+    ax.invert_yaxis()
+    ax.set_xlabel("push towards the class (score units, centred per part)", fontsize=8)
+    ax.legend(fontsize=8, loc="lower right")
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    fig.tight_layout()
+    return fig
 
 
 def make_tab(domain):
     info = DOMAINS[domain]
 
-    def run(image, trained_on):
+    def run(image, trained_on, query):
         if image is None:
-            return None, None, "Upload a photo first."
-        K = TRAINED_ON[trained_on]
-        p = predictor(domain, K)
-        probs, r = p(image)
-        t = p.ck["test"]
-        notes = (f"**Model:** PRGA + DINOv2 cache on {p.ck['backbone']}, trained on {p.ck['n_support']} photos "
-                 f"({trained_on}). Test macro-F1 of this exact model: **{t['macro_f1']:.3f}** on {t['n']} held-out "
-                 f"photos.\n\n**Boxes** (what PRGA's region nodes look at): green = whole object, blue = part / single "
-                 f"item, red = suspicious spot. {len(r['regions'])} regions found.\n\n_{info['note']} "
-                 f"Research prototype, not a diagnostic tool._")
-        return probs, draw(image, r), notes
+            return None, None, None, "Upload a photo first."
+        p = predictor(domain, TRAINED_ON[trained_on])
+        out = p(image)
+        found = p.search(image, query) if query and query.strip() else []
+        t, cal = p.ck["test"], p.ck.get("calib") or {}
+        conf = max(out["probs"].values())
+        lines = []
+        if out["sure"]:
+            lines.append(f"### {out['pred']} ({conf:.0%})")
+        else:
+            lines.append(f"### Not sure: leaning to {out['pred']} ({conf:.0%}). Check this one by hand.")
+            lines.append(f"_Below the confidence threshold {p.unsure_below:.2f}; on validation, photos above it were "
+                         f"right at least 90 % of the time._")
+        names = (["object box"] if out["regions"].get("object") else []) + [f"{x['kind']} ({x['prompt']})" for x in out["regions"]["regions"]]
+        if out["importance"]:
+            lines.append("**How much each region matters**: how much the lead of the predicted class over the "
+                         "runner-up shrinks (+) or grows (−) when that box is removed from the graph:")
+            lines += [f"- box {i}: {n}: {v:+.2f}" for i, (n, v) in enumerate(zip(names, out["importance"]))]
+        if query and query.strip():
+            if found:
+                lines.append(f"**Search \"{query}\"** (purple boxes): " + "; ".join(
+                    f"{f['prompt']}: detector {f['owl']:.2f}, CLIP match {f['clip']:.2f}" for f in found))
+            else:
+                lines.append(f"**Search \"{query}\":** nothing found above the detector threshold (0.10).")
+        lines.append(f"\n**Model:** PRGA + DINOv2 cache on {p.ck['backbone']}, trained on {p.ck['n_support']} photos "
+                     f"({trained_on}). Test macro-F1 {t['macro_f1']:.3f} on {t['n']} held-out photos"
+                     + (f"; calibration error {cal['test_ece_raw']:.3f} → {cal['test_ece_calibrated']:.3f} after "
+                        f"calibration on validation." if cal else "."))
+        lines.append(f"\n_{info['note']} Research prototype, not a diagnostic tool._")
+        return out["probs"], draw(image, out["regions"], found), breakdown_plot(out["parts"], p.classes), "\n".join(lines)
 
     with gr.Tab(info["title"]):
         gr.Markdown(f"Upload {info['what']}.")
@@ -71,15 +122,18 @@ def make_tab(domain):
             with gr.Column():
                 image = gr.Image(type="pil", label="Photo")
                 trained_on = gr.Radio(list(TRAINED_ON), value="all training photos", label="Model trained on")
+                query = gr.Textbox(label="Search inside the photo (optional, comma-separated)",
+                                   placeholder=f"e.g. {info['search']}")
                 go = gr.Button("Classify", variant="primary")
                 ex = sorted((EXAMPLES / domain).glob("*.jpg"))
                 if ex:
                     gr.Examples([[str(p)] for p in ex], inputs=[image], label="Test photos (name = true class)")
             with gr.Column():
-                label = gr.Label(label="Prediction", num_top_classes=4)
-                boxes = gr.Image(label="Regions used by the model")
+                label = gr.Label(label="Prediction (calibrated)", num_top_classes=4)
+                boxes = gr.Image(label="Regions (green object, blue part, red spot; numbered) and search hits (purple)")
+                parts = gr.Plot(label="Why: the score's four parts")
                 notes = gr.Markdown()
-        go.click(run, [image, trained_on], [label, boxes, notes])
+        go.click(run, [image, trained_on, query], [label, boxes, parts, notes])
 
 
 def main():

@@ -249,8 +249,11 @@ Try the final model (PRGA + DINOv2 cache) on your own photos, onions or bees, in
 .venv/bin/python app.py --share    # also prints a temporary public link
 ```
 
-Each tab shows the class probabilities, the regions PRGA's graph uses (green = object, blue = part, red = spot) and
-the test macro-F1 of the exact model being used. You can switch between the model trained on 4 photos per class and
+Each tab shows the calibrated class probabilities (with a "not sure, check by hand" flag), the regions PRGA's graph
+uses (green = object, blue = part, red = spot) and how much each one matters, an exact breakdown of the score into
+its four parts (text match, CLIP cache, photo-specific prototypes, DINOv2 cache), a text search inside the photo
+("a varroa mite") and the test macro-F1 of the exact model being used. Calibration (temperature + class bias, fitted
+on validation) is in `src/calibration.py`. You can switch between the model trained on 4 photos per class and
 the one trained on all training photos (onions 0.917 / 0.987, bees 0.613 / 0.744). The app only predicts, about 0.35 s
 per photo on a laptop GPU. The models are trained on Kaggle by `src/24_export_app_model.py` (kernels
 `kaggle/kernel_app_export*`) and saved in `checkpoints/app_<domain>_K<K>.pt`. CLIP L/14 for the bee tab is loaded
@@ -340,7 +343,9 @@ src/
   backbones.py   loads the frozen networks               adapters.py  comparison methods
   basepaper.py   the base paper's model                  harness.py   runs a method over all K and seeds
 kaggle/          scripts that ran everything on Kaggle (2 × T4 GPUs)
-docs/            models explained, code guide, data cleaning, base-paper replication, compared methods
+docs/            models explained, maths step by step (MATH_EXPLAINED.md), code guide, data cleaning,
+                 base-paper replication, compared methods
+experiments/     side tests that are not part of the method (CLIP fine-tuning on bees)
 prompts/  regions/  splits/  data/clean/  results/  figures/
 ```
 

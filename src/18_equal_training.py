@@ -18,6 +18,7 @@ import importlib
 import json
 import time
 
+import numpy as np
 import pandas as pd
 
 from adapters import CLAP, CLIPAdapter, CoOp, GraphAdapter, TaskRes
@@ -45,6 +46,14 @@ def val_f1(va, scores):
     return metrics(va.y.numpy(), scores.argmax(1).numpy())["macro_f1"] if len(va) else float("nan")
 
 
+def save_probs(name, variant, K, s, probs):
+    """test-set probabilities, for precision / recall / AUROC / calibration later (results/preds/)."""
+    d = RESULTS / "preds"
+    d.mkdir(parents=True, exist_ok=True)
+    tag = name.replace(" + ", "+").replace(" ", "_").replace("[", "").replace("]", "")
+    np.save(d / f"eq_{tag}_{variant}_K{K}_s{s}.npy", probs.numpy().astype(np.float16))
+
+
 def done_runs(log):
     if not log.exists():
         return set()
@@ -65,6 +74,7 @@ def main():
     ap.add_argument("--shots", nargs="+", default=ALL_K)
     ap.add_argument("--seeds", nargs="+", type=int, default=SEEDS)
     ap.add_argument("--backbone", default="clip", choices=["clip", "clip_l14", "bioclip"])
+    ap.add_argument("--variants", nargs="+", default=["last-epoch", "best-epoch"])
     a = ap.parse_args()
     T = load_text(a.backbone, "desc")
     store = Store(a.backbone, second="dinov2", need=("global", "aug", "regions"))
@@ -94,10 +104,11 @@ def main():
                     for name, logits, lv in (("PRGA" + tag, base, base_v),
                                              ("PRGA + DINOv2 cache" + tag, dino.fused(base, te.g2, k2, L, a2, b2),
                                               dino.fused(base_v, va.g2, k2, L, a2, b2))):
+                        save_probs(name, "as-is", K, s, logits.softmax(1))
                         write(log, method=name, variant="as-is", K=K, seed=s, epochs=60, best_epoch=-1,
                               fit_s=fit_s, val_macro_f1=val_f1(va, lv), **metrics(y_te, logits.argmax(1).numpy()))
                     continue
-                for variant in ("last-epoch", "best-epoch"):
+                for variant in a.variants:
                     if (LABEL[method] + tag, variant, K, s) in done:
                         continue
                     seed_all(s)
@@ -108,7 +119,9 @@ def main():
                     t0 = time.time()
                     m.fit(tr, va)
                     fit_s = time.time() - t0
-                    pred = m.predict(te).argmax(1).numpy()
+                    probs = m.predict(te).float().cpu()
+                    save_probs(LABEL[method] + tag, variant, K, s, probs)
+                    pred = probs.argmax(1).numpy()
                     vf1 = val_f1(va, m.predict(va))
                     write(log, method=LABEL[method] + tag, variant=variant, K=K, seed=s, epochs=m.epochs,
                           best_epoch=getattr(m, "best_epoch", m.epochs) if variant == "best-epoch" else m.epochs,

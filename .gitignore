@@ -39,3 +39,4 @@ domains/*/features/
 domains/*/checkpoints/
 domains/*/results/preds/
 app_examples/
+domains/*/results_deck_DRY/

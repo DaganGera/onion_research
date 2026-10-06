@@ -15,6 +15,7 @@ import pandas as pd
 import torch
 from PIL import Image
 
+import calibration
 from common import CKPT, CLASSES, DATASET, DROOT, PAD_SQUARE, RAW, SPLITS, metrics, seed_all
 from fewshot import PRGA, Store, onehot
 from harness import load_text
@@ -42,14 +43,28 @@ def main():
         m = PRGA(T, **dino.CHOSEN[1]).fit(tr, va)
         k2, L = dino.dino_keys(tr, finetune=True), onehot(tr.y)
         a2, b2 = dino.tune(dino.prga_logits(m, va), va.g2, k2, L, va.y)
-        probs = dino.fused(dino.prga_logits(m, te), te.g2, k2, L, a2, b2).softmax(1)
+        zv = dino.fused(dino.prga_logits(m, va), va.g2, k2, L, a2, b2)
+        zt = dino.fused(dino.prga_logits(m, te), te.g2, k2, L, a2, b2)
+        tau, bias = calibration.fit(zv, va.y)                       # validation only
+        raw, cal = zt.softmax(1), calibration.apply(zt, tau, bias)
+        t_unsure = calibration.unsure_threshold(calibration.apply(zv, tau, bias), va.y)
+        conf = cal.max(1).values
+        sure = conf >= t_unsure if t_unsure is not None else torch.ones(len(conf), dtype=torch.bool)
+        probs = cal
         score = metrics(te.y.numpy(), probs.argmax(1).numpy())
+        calib = dict(tau=tau, bias=bias.tolist(), unsure_below=t_unsure,
+                     test_macro_f1_raw=round(metrics(te.y.numpy(), raw.argmax(1).numpy())["macro_f1"], 4),
+                     test_macro_f1_calibrated=round(score["macro_f1"], 4),
+                     test_ece_raw=round(calibration.ece(raw, te.y), 4), test_ece_calibrated=round(calibration.ece(cal, te.y), 4),
+                     test_share_sure=round(float(sure.float().mean()), 4),
+                     test_acc_when_sure=round(float((cal.argmax(1)[sure] == te.y[sure]).float().mean()), 4))
+        print(f"{DATASET} K={K} calibration: {calib}", flush=True)
         ck = dict(domain=DATASET, backbone=a.backbone, pad=PAD_SQUARE, classes=CLASSES, K=K, seed=s, n_support=len(tr),
                   T=T, cfg=m.cfg, test_graph=m.test_graph, net=m.net.state_dict(),
                   s={k: float(v) for k, v in m.s.items()}, keys=m.keys.cpu(), L=m.L.cpu(),
                   k2=k2.cpu(), a2=float(a2), b2=float(b2),
                   owl=dict(object=owl.OBJECT_PROMPTS, instance=owl.INSTANCE_PROMPTS, spot=owl.SPOT_PROMPTS),
-                  test=dict(n=len(test_df), **{k: round(v, 4) for k, v in score.items()}))
+                  calib=calib, test=dict(n=len(test_df), **{k: round(v, 4) for k, v in score.items()}))
         torch.save(ck, CKPT / f"app_{DATASET}_K{K}.pt")
         print(f"{DATASET} K={K}: {len(tr)} support photos, test macro-F1 {score['macro_f1']:.4f}", flush=True)
 
