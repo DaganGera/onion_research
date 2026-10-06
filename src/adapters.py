@@ -95,7 +95,8 @@ class CLIPAdapter(_Selectable):
         self.T, self.epochs, self.lr = T.to(DEVICE), epochs, lr
 
     def _fit(self, tr, r):
-        mlp = nn.Sequential(nn.Linear(512, 128, bias=False), nn.ReLU(), nn.Linear(128, 512, bias=False),
+        D = self.T.shape[1]                                  # bottleneck D/4: 512 -> 128 as in the paper
+        mlp = nn.Sequential(nn.Linear(D, D // 4, bias=False), nn.ReLU(), nn.Linear(D // 4, D, bias=False),
                             nn.ReLU()).to(DEVICE)
         st = dict(mlp=mlp, r=r)
         X, Y = _views(tr)
@@ -173,7 +174,7 @@ class GraphAdapter(_Selectable):
     def _fit(self, tr, b):
         P = l2n(torch.stack([tr.aug[tr.y == c].mean((0, 1)) for c in range(len(self.T))]).to(DEVICE))
         H = torch.cat([self.T, P])                           # [2C, D] textual + visual knowledge nodes
-        lin = nn.Linear(512, 512, bias=False).to(DEVICE)
+        lin = nn.Linear(H.shape[1], H.shape[1], bias=False).to(DEVICE)
         nn.init.eye_(lin.weight)
         st = dict(lin=lin, H=H, A=self._norm_adj(H), b=b)
         X, Y = _views(tr)
@@ -186,7 +187,7 @@ class GraphAdapter(_Selectable):
         return 100 * f @ l2n(st["b"] * l2n(G) + (1 - st["b"]) * self.T).T
 
     def n_params(self):
-        return 512 * 512
+        return self.T.shape[1] ** 2
 
 
 class CoOp:

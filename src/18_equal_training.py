@@ -64,7 +64,7 @@ def main():
                     default=["tipf", "clipadapter", "taskres", "clap", "graphadapter", "cafo", "prga", "coop"])
     ap.add_argument("--shots", nargs="+", default=ALL_K)
     ap.add_argument("--seeds", nargs="+", type=int, default=SEEDS)
-    ap.add_argument("--backbone", default="clip", choices=["clip", "bioclip"])
+    ap.add_argument("--backbone", default="clip", choices=["clip", "clip_l14", "bioclip"])
     a = ap.parse_args()
     T = load_text(a.backbone, "desc")
     store = Store(a.backbone, second="dinov2", need=("global", "aug", "regions"))

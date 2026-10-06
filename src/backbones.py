@@ -24,11 +24,12 @@ class Backbone:
 
     def __init__(self, name):
         self.name = name
-        if name in ("clip", "bioclip"):
+        if name in ("clip", "clip_l14", "bioclip"):
             import open_clip
-            if name == "clip":
-                self.model, _, _ = open_clip.create_model_and_transforms("ViT-B-16-quickgelu", pretrained="openai")
-                self.tok = open_clip.get_tokenizer("ViT-B-16-quickgelu")
+            if name in ("clip", "clip_l14"):    # clip = ViT-B/16 (default); clip_l14 = ViT-L/14 (bee domain)
+                arch = "ViT-B-16-quickgelu" if name == "clip" else "ViT-L-14-quickgelu"
+                self.model, _, _ = open_clip.create_model_and_transforms(arch, pretrained="openai")
+                self.tok = open_clip.get_tokenizer(arch)
             else:   # BioCLIP = a ViT-B/16 CLIP trained on the Tree of Life; weights fetched by third_party/fetch_bioclip.sh
                 local = ROOT / "third_party/models/bioclip"
                 if (local / ".complete").exists():
@@ -72,7 +73,7 @@ class Backbone:
     @torch.no_grad()
     def encode_image(self, x):
         x = x.to(DEVICE).half()
-        if self.name in ("clip", "bioclip"):
+        if self.name in ("clip", "clip_l14", "bioclip"):
             f = self.model.encode_image(x)
         elif self.name == "dinov2":
             f = self.model(pixel_values=x).pooler_output
@@ -82,7 +83,7 @@ class Backbone:
 
     @torch.no_grad()
     def encode_text(self, texts):
-        if self.name in ("clip", "bioclip"):
+        if self.name in ("clip", "clip_l14", "bioclip"):
             f = self.model.encode_text(self.tok(texts).to(DEVICE))
         elif self.name == "scold":
             t = self.rtok(texts, return_tensors="pt", padding=True, truncation=True).to(DEVICE)

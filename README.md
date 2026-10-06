@@ -86,6 +86,9 @@ The same code was run on a second, niche domain where the sign is tiny: honeybee
   for tiny signs, though not yet at few shots.
 - BioCLIP was tried as a backbone and lost to CLIP on validation, so CLIP is kept. A random split would inflate
   scores by 7-10 points.
+- A small pilot then tried other backbones and fixes; only **CLIP ViT-L/14** passed. With it every method gains about
+  8-15 points (most reach 0.68-0.73). PRGA is tied at 1-2 shots and best with all photos (0.737), but 3-6 points
+  behind CLIP-Adapter and TaskRes at 4-16 shots: on bees the backbone, not the adapter, sets the level.
 
 ## How it works
 

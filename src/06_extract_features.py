@@ -94,7 +94,7 @@ class DS(Dataset):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--backbone", default="clip", choices=["clip", "bioclip", "dinov2", "scold"])
+    ap.add_argument("--backbone", default="clip", choices=["clip", "clip_l14", "bioclip", "dinov2", "scold"])
     ap.add_argument("--mode", default="global", choices=["global", "aug", "grid", "regions"])
     ap.add_argument("--bs", type=int, default=64)
     a = ap.parse_args()

@@ -1,0 +1,14 @@
+{
+  "id": "marcbenjamessamuel/bees-l14",
+  "title": "bees-l14",
+  "code_file": "bees_l14.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["marcbenjamessamuel/onion-bees-code"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

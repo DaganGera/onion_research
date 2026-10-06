@@ -432,7 +432,7 @@ class PRGA:
 
     def fit(self, tr, va):
         torch.manual_seed(0)
-        self.net = PRGANet(self.T, **self.cfg).to(DEVICE)
+        self.net = PRGANet(self.T, D=self.T.shape[1], **self.cfg).to(DEVICE)
         self.s = {"alpha": nn.Parameter(torch.tensor(5.0, device=DEVICE)),   # same start as Tip-Adapter-F training
                   "beta": nn.Parameter(torch.tensor(5.0, device=DEVICE)),
                   "gamma": nn.Parameter(torch.tensor(0.5, device=DEVICE))}

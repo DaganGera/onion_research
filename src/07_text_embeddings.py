@@ -29,7 +29,7 @@ def class_phrase(c):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--backbone", default="clip", choices=["clip", "bioclip", "scold"])
+    ap.add_argument("--backbone", default="clip", choices=["clip", "clip_l14", "bioclip", "scold"])
     a = ap.parse_args()
     bb = Backbone(a.backbone)
 

@@ -76,7 +76,45 @@ at test time, geometry on), which is why the "regions" row differs from the tabl
 OWLv2 put a "spot" region on the annotated mite in **38 %** of Varroa photos (`results/region_check.csv`), and found
 spots on healthy bees too (0.45 per photo vs 0.80 on Varroa photos).
 
-## What this shows
+## Second round: a stronger backbone (CLIP ViT-L/14)
+
+**Pilot first** (`src/22_bees_pilot.py`, `results/pilot.csv`): K = 4 and 16, seed 1. Support photos came from 3 pool
+videos and validation from the other 3 pool videos, so validation measured cross-video transfer. Test was 2,000
+random test photos. It tried 4 text backbones (CLIP B/16, CLIP L/14, SigLIP B/16, BioCLIP) × 2 DINOv2 sizes ×
+mite-scale tiles × per-video centring × a mite prototype built from support boxes. The rule, fixed beforehand: go
+only if a variant beats the baseline by ≥ 5 validation points and test moves the same way. Only **CLIP L/14**
+passed, for every method (test +6 to +11 points at K = 4 and 16). Tiles, centring and the mite prototype gave no
+consistent gain, so the full run changes **only the backbone**: same split, same OWLv2 boxes, same methods and fair
+protocol (`kaggle/kernel_bees_l14`).
+
+**Full run, CLIP ViT-L/14** (macro-F1, mean ± std over 3 seeds; comparison methods best-epoch):
+
+| method | K=1 | K=2 | K=4 | K=8 | K=16 | all |
+|---|---|---|---|---|---|---|
+| PRGA + DINOv2 cache | 0.665 ± .017 | 0.688 ± .018 | 0.663 ± .053 | 0.675 ± .019 | 0.679 ± .029 | 0.730 ± .013 |
+| PRGA | 0.654 ± .013 | 0.683 ± .010 | 0.664 ± .051 | 0.669 ± .012 | 0.678 ± .029 | **0.737** ± .002 |
+| CLIP-Adapter | **0.670** ± .044 | 0.692 ± .044 | 0.699 ± .006 | **0.730** ± .015 | 0.698 ± .026 | 0.730 ± .007 |
+| TaskRes | 0.626 ± .077 | **0.694** ± .028 | **0.701** ± .004 | 0.704 ± .023 | **0.710** ± .012 | 0.735 ± .006 |
+| GraphAdapter | 0.656 ± .056 | 0.675 ± .002 | 0.694 ± .036 | 0.714 ± .005 | 0.699 ± .020 | 0.729 ± .010 |
+| CLAP | 0.571 ± .068 | 0.656 ± .042 | 0.679 ± .030 | 0.645 ± .112 | 0.691 ± .035 | 0.712 ± .017 |
+| Tip-Adapter-F | 0.556 ± .123 | 0.681 ± .026 | 0.677 ± .013 | 0.692 ± .047 | 0.677 ± .023 | 0.651 ± .020 |
+| PlantCaFo-style cache | 0.666 ± .019 | 0.666 ± .030 | 0.632 ± .025 | 0.694 ± .029 | 0.667 ± .015 | 0.611 ± .003 |
+| Tip-Adapter (no training) | 0.610 ± .028 | 0.685 ± .073 | 0.687 ± .003 | 0.713 ± .023 | 0.650 ± .023 | 0.674 ± .003 |
+| Linear probe | 0.453 ± .181 | 0.612 ± .100 | 0.647 ± .038 | 0.692 ± .043 | 0.692 ± .035 | 0.731 ± .007 |
+
+Zero-shot CLIP L/14 with our descriptions: 0.605. Leakage check with L/14: random split vs video split, 1-NN 0.728
+vs 0.634, linear probe 0.798 vs 0.687.
+
+**Reading it honestly:**
+- The bigger backbone lifts **every** method by about 8-15 points (e.g. PRGA + DINOv2 at K = 16: 0.601 → 0.679).
+- **PRGA does not win on bees.** It is tied at K = 1-2 (and the most stable there, std ≈ .01-.02), best or tied with
+  all photos (0.737), but **3-6 points behind CLIP-Adapter and TaskRes at K = 4-16**.
+- Most methods now sit at 0.68-0.73: the backbone, not the adapter, sets the level on this task. A fine-tuned CNN
+  with all photos (0.770, earlier run) is still higher.
+- As expected from the pilot, the gain from 1 seed (PRGA + DINOv2 0.66 / 0.69 at K = 4 / 16) held at K = 16
+  (0.679) but shrank at K = 4 (0.663).
+
+## What this shows (first round, CLIP B/16)
 
 1. **This task is hard for every frozen-feature method.** With 1-16 photos per class nothing gets far above 0.60
    macro-F1 (chance is about 0.50). CLIP's features hardly separate infested from healthy bees: zero-shot is 0.56 and

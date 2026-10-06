@@ -1,0 +1,3 @@
+method,split,acc,macro_f1
+LinearProbe-clip_l14,grouped,0.8218189110598616,0.6866588414570053
+LinearProbe-clip_l14,random,0.8687456131555199,0.7984416653315296
