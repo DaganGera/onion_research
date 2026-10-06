@@ -10,11 +10,11 @@ CLIP_MEAN, CLIP_STD = (0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.261302
 IMNET_MEAN, IMNET_STD = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 
 
-def _tf(mean, std, aug=False, normalize=True):
+def _tf(mean, std, aug=False, normalize=True, pad=PAD_SQUARE):
     ops = ([T.RandomResizedCrop(224, scale=(0.5, 1.0), interpolation=T.InterpolationMode.BICUBIC),
             T.RandomHorizontalFlip()] if aug else
            [T.Resize(224, interpolation=T.InterpolationMode.BICUBIC), T.CenterCrop(224)])
-    ops = ([T.Lambda(pad_square)] if PAD_SQUARE else []) + ops
+    ops = ([T.Lambda(pad_square)] if pad else []) + ops
     ops += [T.ToTensor()] + ([T.Normalize(mean, std)] if normalize else [])
     return T.Compose(ops)
 
@@ -22,13 +22,20 @@ def _tf(mean, std, aug=False, normalize=True):
 class Backbone:
     has_text = True
 
-    def __init__(self, name):
+    def __init__(self, name, pad=None):
+        """pad: pad photos to a square instead of centre-cropping (default: the domain's setting, common.PAD_SQUARE)."""
         self.name = name
+        pad = PAD_SQUARE if pad is None else pad
         if name in ("clip", "clip_l14", "bioclip"):
             import open_clip
             if name in ("clip", "clip_l14"):    # clip = ViT-B/16 (default); clip_l14 = ViT-L/14 (bee domain)
                 arch = "ViT-B-16-quickgelu" if name == "clip" else "ViT-L-14-quickgelu"
-                self.model, _, _ = open_clip.create_model_and_transforms(arch, pretrained="openai")
+                local = ROOT / "third_party/models/clip_l14_openai_fp16.pt"      # same weights, saved on Kaggle
+                if name == "clip_l14" and local.exists():
+                    self.model, _, _ = open_clip.create_model_and_transforms(arch)
+                    self.model.load_state_dict({k: v.float() for k, v in torch.load(local).items()})
+                else:
+                    self.model, _, _ = open_clip.create_model_and_transforms(arch, pretrained="openai")
                 self.tok = open_clip.get_tokenizer(arch)
             else:   # BioCLIP = a ViT-B/16 CLIP trained on the Tree of Life; weights fetched by third_party/fetch_bioclip.sh
                 local = ROOT / "third_party/models/bioclip"
@@ -66,8 +73,8 @@ class Backbone:
         else:
             raise ValueError(name)
         self.model = self.model.to(DEVICE).eval().half()
-        self.transform = _tf(self.mean, self.std, normalize=norm)
-        self.aug_transform = _tf(self.mean, self.std, aug=True, normalize=norm)
+        self.transform = _tf(self.mean, self.std, normalize=norm, pad=pad)
+        self.aug_transform = _tf(self.mean, self.std, aug=True, normalize=norm, pad=pad)
         self.normalize = norm
 
     @torch.no_grad()

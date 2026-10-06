@@ -1,0 +1,14 @@
+{
+  "id": "marcbenjamessamuel/app-export-onion",
+  "title": "app-export-onion",
+  "code_file": "app_export_onion.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["marcbenjamessamuel/onion-bees-code", "marcbenjamessamuel/onion-fewshot-work", "marcbenjamessamuel/onion-bulbs-images", "marcbenjamessamuel/onion-app-features"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

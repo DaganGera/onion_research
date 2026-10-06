@@ -38,3 +38,4 @@ domains/*/data/gt.csv
 domains/*/features/
 domains/*/checkpoints/
 domains/*/results/preds/
+app_examples/

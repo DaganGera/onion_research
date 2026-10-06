@@ -240,6 +240,23 @@ Training time for one support set is seconds to a minute on a laptop GPU. Epochs
 
 An epoch is one pass over the augmented views of every support photo.
 
+## Web app
+
+Try the final model (PRGA + DINOv2 cache) on your own photos, onions or bees, in the browser:
+
+```
+.venv/bin/python app.py            # then open http://127.0.0.1:7860
+.venv/bin/python app.py --share    # also prints a temporary public link
+```
+
+Each tab shows the class probabilities, the regions PRGA's graph uses (green = object, blue = part, red = spot) and
+the test macro-F1 of the exact model being used. You can switch between the model trained on 4 photos per class and
+the one trained on all training photos (onions 0.917 / 0.987, bees 0.613 / 0.744). The app only predicts, about 0.35 s
+per photo on a laptop GPU. The models are trained on Kaggle by `src/24_export_app_model.py` (kernels
+`kaggle/kernel_app_export*`) and saved in `checkpoints/app_<domain>_K<K>.pt`. CLIP L/14 for the bee tab is loaded
+from `third_party/models/clip_l14_openai_fp16.pt` if present (`kaggle/kernel_clip_l14_weights`). Example test photos
+go in `app_examples/<domain>/`; they are not in the repository because of the datasets' licences.
+
 ## Try it
 
 ```
@@ -313,6 +330,10 @@ src/
   19_architecture_figures.py  the architecture diagrams
   20_prepare_bees.py        bee domain: labels, video-disjoint split (DATASET=bees)
   21_check_regions_bees.py  bee domain: do OWLv2 spot regions land on the annotated mites?
+  22_bees_pilot.py          bee domain: quick pilot of backbones and fixes
+  23_bees_visualise.py      bee domain: correct examples, Grad-CAM per model, regions
+  24_export_app_model.py    train the final model once and save it for the web app
+  app_model.py              prediction for the web app (app.py)
   demo.py                   train and test the final model in one go
 
   common.py      paths, classes, seeds, metrics          fewshot.py   feature store, baselines, PRGA
