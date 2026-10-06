@@ -114,6 +114,44 @@ vs 0.634, linear probe 0.798 vs 0.687.
 - As expected from the pilot, the gain from 1 seed (PRGA + DINOv2 0.66 / 0.69 at K = 4 / 16) held at K = 16
   (0.679) but shrank at K = 4 (0.663).
 
+## Pictures: what the models see (CLIP L/14, K = 16, seed 1)
+
+Made by `src/23_bees_visualise.py` on 800 random test bees (natural 74 / 26 ratio).
+
+- `figures/bees_correct_examples.png`: test bees detected correctly by PRGA + DINOv2, with the annotated mite and
+  how many of the 9 models got each one right.
+- `figures/bees_model_agreement.png`: right/wrong for every model on 40 test bees.
+- `figures/bees_gradcam_models.png`: Grad-CAM of each model's Varroa decision through the frozen CLIP encoder.
+- `figures/bees_regions.png`: PRGA's OWLv2 region nodes against the annotated mite.
+- `figures/bees_ablations.png`: the PRGA ablations above, as a chart.
+
+| model | macro-F1 (800 test bees) | says "Varroa" for | Grad-CAM peak on the mite |
+|---|---|---|---|
+| Zero-shot CLIP | 0.628 | 56.8 % | 70 % |
+| Tip-Adapter-F | 0.716 | 19.0 % | 63 % |
+| PlantCaFo-style | 0.664 | 13.0 % | 70 % |
+| CLIP-Adapter | 0.724 | 21.0 % | 71 % |
+| TaskRes | 0.723 | 21.1 % | 71 % |
+| CLAP | 0.732 | 19.9 % | 71 % |
+| GraphAdapter | 0.722 | 17.6 % | 70 % |
+| PRGA | 0.639 | 8.1 % | 71 % |
+| PRGA + DINOv2 | 0.614 | 6.4 % | 71 % |
+
+True share of Varroa bees: 26.1 %.
+
+**What the pictures show:**
+1. **The frozen CLIP encoder does look at the mite.** For about 70 % of Varroa bees, every model's Grad-CAM peak lies
+   inside the annotated mite box. Attention is not the main problem.
+2. **The decision is too cautious.** PRGA says "Varroa" for only 6-8 % of bees when 26 % are infested; the other
+   methods say 13-21 %. Even correctly detected Varroa bees get probabilities of only 0.5-0.65. PRGA's lower score is
+   mainly a calibration problem (too few positive calls), which a decision threshold tuned on validation could
+   address. Not tested yet.
+3. **OWLv2's "spot" boxes almost never land on the mite** (red boxes, often on the background); the body-part boxes
+   sometimes contain it. This matches the 38 % hit rate measured earlier.
+
+PRGA scored 0.639 here against 0.684 for the same K and seed in the full run. This script tunes on 600 of the
+validation bees instead of all of them, which changes PRGA's checkpoint and α/β choice.
+
 ## What this shows (first round, CLIP B/16)
 
 1. **This task is hard for every frozen-feature method.** With 1-16 photos per class nothing gets far above 0.60

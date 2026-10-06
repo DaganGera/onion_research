@@ -1,0 +1,10 @@
+model,test_macro_f1,says_varroa,gradcam_on_mite,n_varroa_with_box
+Zero-shot CLIP,0.6278,0.568,0.699,209
+Tip-Adapter-F,0.7156,0.19,0.632,209
+PlantCaFo-style,0.6644,0.13,0.703,209
+CLIP-Adapter,0.7241,0.21,0.713,209
+TaskRes,0.7229,0.211,0.713,209
+CLAP,0.7318,0.199,0.713,209
+GraphAdapter,0.7221,0.176,0.703,209
+PRGA,0.6389,0.081,0.708,209
+PRGA + DINOv2,0.6142,0.064,0.708,209

@@ -18,6 +18,7 @@ directly, so:
 
 Output: data/meta.csv, data/clean/meta_clean.csv, splits/*.csv
 """
+import ast
 import os
 import re
 
@@ -45,7 +46,10 @@ def read_gt():
         rows.append(dict(path=parts[0], label=int(parts[1]), video=m["video"], track=f'{m["video"]}#{m["track"]}',
                          frame=int(m["frame"]), orig_split=parts[0].split("/")[0],
                          mite_boxes=str([nums[i:i + 4] for i in range(0, len(nums) - 3, 4)])))
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    # gt.csv lists 2 files twice (same label, slightly different mite boxes): keep one row per file, all boxes
+    boxes = df.groupby("path").mite_boxes.agg(lambda b: str(sum((ast.literal_eval(x) for x in b), [])))
+    return df.drop_duplicates("path").assign(mite_boxes=lambda d: d.path.map(boxes)).reset_index(drop=True)
 
 
 def main():
