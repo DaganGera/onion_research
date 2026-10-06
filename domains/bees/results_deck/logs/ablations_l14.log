@@ -1,0 +1,243 @@
+PRGA-full                    K=   1 seed=1  acc=0.7900  macroF1=0.7171  (14.5s)
+PRGA-full                    K=   1 seed=2  acc=0.7907  macroF1=0.6946  (11.8s)
+PRGA-full                    K=   1 seed=3  acc=0.6184  macroF1=0.5997  (12.0s)
+PRGA-full                    K=   2 seed=1  acc=0.7739  macroF1=0.6961  (11.8s)
+PRGA-full                    K=   2 seed=2  acc=0.7866  macroF1=0.6460  (12.0s)
+PRGA-full                    K=   2 seed=3  acc=0.6914  macroF1=0.6246  (11.9s)
+PRGA-full                    K=   4 seed=1  acc=0.5767  macroF1=0.5481  (11.9s)
+PRGA-full                    K=   4 seed=2  acc=0.7192  macroF1=0.6631  (11.9s)
+PRGA-full                    K=   4 seed=3  acc=0.7838  macroF1=0.6581  (12.4s)
+PRGA-full                    K=   8 seed=1  acc=0.8012  macroF1=0.6933  (12.4s)
+PRGA-full                    K=   8 seed=2  acc=0.8012  macroF1=0.6994  (12.4s)
+PRGA-full                    K=   8 seed=3  acc=0.6300  macroF1=0.5786  (12.7s)
+PRGA-full                    K=  16 seed=1  acc=0.8170  macroF1=0.7201  (11.9s)
+PRGA-full                    K=  16 seed=2  acc=0.7530  macroF1=0.6439  (12.0s)
+PRGA-full                    K=  16 seed=3  acc=0.7756  macroF1=0.6779  (11.8s)
+PRGA-full                    K=full seed=1  acc=0.8446  macroF1=0.7545  (52.2s)
+PRGA-full                    K=full seed=2  acc=0.8424  macroF1=0.7564  (53.3s)
+PRGA-full                    K=full seed=3  acc=0.8429  macroF1=0.7455  (54.0s)
+abl-grid-nodes               K=   1 seed=1  acc=0.7933  macroF1=0.7135  (12.0s)
+abl-grid-nodes               K=   1 seed=2  acc=0.7945  macroF1=0.6899  (17.6s)
+abl-grid-nodes               K=   1 seed=3  acc=0.5829  macroF1=0.5753  (19.6s)
+abl-grid-nodes               K=   2 seed=1  acc=0.7953  macroF1=0.6879  (20.0s)
+abl-grid-nodes               K=   2 seed=2  acc=0.7951  macroF1=0.6508  (17.0s)
+abl-grid-nodes               K=   2 seed=3  acc=0.8100  macroF1=0.6673  (18.1s)
+abl-grid-nodes               K=   4 seed=1  acc=0.7249  macroF1=0.6882  (20.0s)
+abl-grid-nodes               K=   4 seed=2  acc=0.7565  macroF1=0.6953  (20.2s)
+abl-grid-nodes               K=   4 seed=3  acc=0.7978  macroF1=0.7140  (18.8s)
+abl-grid-nodes               K=   8 seed=1  acc=0.8135  macroF1=0.7258  (20.4s)
+abl-grid-nodes               K=   8 seed=2  acc=0.8062  macroF1=0.6924  (20.6s)
+abl-grid-nodes               K=   8 seed=3  acc=0.8068  macroF1=0.7502  (20.6s)
+abl-grid-nodes               K=  16 seed=1  acc=0.8170  macroF1=0.6938  (20.6s)
+abl-grid-nodes               K=  16 seed=2  acc=0.7570  macroF1=0.6464  (19.4s)
+abl-grid-nodes               K=  16 seed=3  acc=0.7959  macroF1=0.7124  (20.0s)
+abl-grid-nodes               K=full seed=1  acc=0.8332  macroF1=0.7249  (79.1s)
+abl-grid-nodes               K=full seed=2  acc=0.8321  macroF1=0.7343  (78.5s)
+abl-grid-nodes               K=full seed=3  acc=0.8340  macroF1=0.7267  (77.4s)
+abl-no-text-nodes            K=   1 seed=1  acc=0.6505  macroF1=0.5944  (10.7s)
+abl-no-text-nodes            K=   1 seed=2  acc=0.6418  macroF1=0.5825  (10.5s)
+abl-no-text-nodes            K=   1 seed=3  acc=0.5459  macroF1=0.5353  (10.8s)
+abl-no-text-nodes            K=   2 seed=1  acc=0.7859  macroF1=0.6839  (10.8s)
+abl-no-text-nodes            K=   2 seed=2  acc=0.7421  macroF1=0.6063  (10.8s)
+abl-no-text-nodes            K=   2 seed=3  acc=0.6523  macroF1=0.5922  (11.6s)
+abl-no-text-nodes            K=   4 seed=1  acc=0.5671  macroF1=0.5336  (10.4s)
+abl-no-text-nodes            K=   4 seed=2  acc=0.6288  macroF1=0.5729  (11.0s)
+abl-no-text-nodes            K=   4 seed=3  acc=0.7817  macroF1=0.6591  (11.0s)
+abl-no-text-nodes            K=   8 seed=1  acc=0.8002  macroF1=0.6742  (10.5s)
+abl-no-text-nodes            K=   8 seed=2  acc=0.7947  macroF1=0.6537  (11.0s)
+abl-no-text-nodes            K=   8 seed=3  acc=0.7462  macroF1=0.6571  (11.1s)
+abl-no-text-nodes            K=  16 seed=1  acc=0.8151  macroF1=0.7074  (12.2s)
+abl-no-text-nodes            K=  16 seed=2  acc=0.7508  macroF1=0.6330  (10.7s)
+abl-no-text-nodes            K=  16 seed=3  acc=0.6877  macroF1=0.6117  (11.4s)
+abl-no-text-nodes            K=full seed=1  acc=0.8379  macroF1=0.7258  (43.8s)
+abl-no-text-nodes            K=full seed=2  acc=0.8313  macroF1=0.7169  (42.8s)
+abl-no-text-nodes            K=full seed=3  acc=0.8201  macroF1=0.6824  (43.2s)
+abl-template-text            K=   1 seed=1  acc=0.7854  macroF1=0.6784  (12.4s)
+abl-template-text            K=   1 seed=2  acc=0.7638  macroF1=0.6850  (12.7s)
+abl-template-text            K=   1 seed=3  acc=0.5291  macroF1=0.5154  (12.1s)
+abl-template-text            K=   2 seed=1  acc=0.7422  macroF1=0.6804  (12.7s)
+abl-template-text            K=   2 seed=2  acc=0.7738  macroF1=0.6298  (12.9s)
+abl-template-text            K=   2 seed=3  acc=0.6320  macroF1=0.5752  (12.2s)
+abl-template-text            K=   4 seed=1  acc=0.6288  macroF1=0.5729  (12.7s)
+abl-template-text            K=   4 seed=2  acc=0.7327  macroF1=0.6723  (12.8s)
+abl-template-text            K=   4 seed=3  acc=0.7709  macroF1=0.6275  (12.3s)
+abl-template-text            K=   8 seed=1  acc=0.7628  macroF1=0.6812  (12.3s)
+abl-template-text            K=   8 seed=2  acc=0.7718  macroF1=0.6857  (13.2s)
+abl-template-text            K=   8 seed=3  acc=0.6284  macroF1=0.5759  (13.6s)
+abl-template-text            K=  16 seed=1  acc=0.8095  macroF1=0.7100  (12.3s)
+abl-template-text            K=  16 seed=2  acc=0.7272  macroF1=0.6306  (13.3s)
+abl-template-text            K=  16 seed=3  acc=0.7506  macroF1=0.6573  (12.5s)
+abl-template-text            K=full seed=1  acc=0.8447  macroF1=0.7515  (57.5s)
+abl-template-text            K=full seed=2  acc=0.8376  macroF1=0.7358  (56.3s)
+abl-template-text            K=full seed=3  acc=0.8451  macroF1=0.7532  (56.6s)
+abl-no-gate                  K=   1 seed=1  acc=0.7612  macroF1=0.7134  (10.9s)
+abl-no-gate                  K=   1 seed=2  acc=0.7855  macroF1=0.7065  (10.7s)
+abl-no-gate                  K=   1 seed=3  acc=0.5376  macroF1=0.5288  (11.3s)
+abl-no-gate                  K=   2 seed=1  acc=0.7757  macroF1=0.7105  (10.6s)
+abl-no-gate                  K=   2 seed=2  acc=0.7821  macroF1=0.6412  (10.7s)
+abl-no-gate                  K=   2 seed=3  acc=0.6511  macroF1=0.5945  (11.0s)
+abl-no-gate                  K=   4 seed=1  acc=0.5978  macroF1=0.5617  (10.8s)
+abl-no-gate                  K=   4 seed=2  acc=0.7095  macroF1=0.6403  (11.1s)
+abl-no-gate                  K=   4 seed=3  acc=0.7770  macroF1=0.6171  (10.0s)
+abl-no-gate                  K=   8 seed=1  acc=0.8041  macroF1=0.6985  (10.4s)
+abl-no-gate                  K=   8 seed=2  acc=0.7951  macroF1=0.6878  (10.2s)
+abl-no-gate                  K=   8 seed=3  acc=0.6307  macroF1=0.5765  (10.1s)
+abl-no-gate                  K=  16 seed=1  acc=0.8072  macroF1=0.7004  (10.0s)
+abl-no-gate                  K=  16 seed=2  acc=0.7707  macroF1=0.6767  (10.1s)
+abl-no-gate                  K=  16 seed=3  acc=0.7675  macroF1=0.6785  (10.1s)
+abl-no-gate                  K=full seed=1  acc=0.8436  macroF1=0.7543  (42.1s)
+abl-no-gate                  K=full seed=2  acc=0.8396  macroF1=0.7512  (41.1s)
+abl-no-gate                  K=full seed=3  acc=0.8439  macroF1=0.7588  (41.3s)
+abl-no-geometry              K=   1 seed=1  acc=0.7678  macroF1=0.7145  (10.8s)
+abl-no-geometry              K=   1 seed=2  acc=0.6300  macroF1=0.5750  (10.6s)
+abl-no-geometry              K=   1 seed=3  acc=0.6011  macroF1=0.5862  (10.6s)
+abl-no-geometry              K=   2 seed=1  acc=0.7938  macroF1=0.7157  (10.8s)
+abl-no-geometry              K=   2 seed=2  acc=0.7967  macroF1=0.6427  (10.8s)
+abl-no-geometry              K=   2 seed=3  acc=0.6798  macroF1=0.6167  (10.7s)
+abl-no-geometry              K=   4 seed=1  acc=0.5435  macroF1=0.5195  (10.8s)
+abl-no-geometry              K=   4 seed=2  acc=0.7205  macroF1=0.6675  (10.7s)
+abl-no-geometry              K=   4 seed=3  acc=0.7959  macroF1=0.6756  (10.6s)
+abl-no-geometry              K=   8 seed=1  acc=0.8153  macroF1=0.7236  (10.7s)
+abl-no-geometry              K=   8 seed=2  acc=0.8012  macroF1=0.6743  (10.7s)
+abl-no-geometry              K=   8 seed=3  acc=0.6295  macroF1=0.5756  (10.8s)
+abl-no-geometry              K=  16 seed=1  acc=0.8173  macroF1=0.7205  (10.8s)
+abl-no-geometry              K=  16 seed=2  acc=0.7729  macroF1=0.6638  (10.7s)
+abl-no-geometry              K=  16 seed=3  acc=0.7778  macroF1=0.6774  (10.9s)
+abl-no-geometry              K=full seed=1  acc=0.8430  macroF1=0.7559  (54.6s)
+abl-no-geometry              K=full seed=2  acc=0.8357  macroF1=0.7408  (53.4s)
+abl-no-geometry              K=full seed=3  acc=0.8415  macroF1=0.7521  (53.6s)
+abl-M0-object-only           K=   1 seed=1  acc=0.7901  macroF1=0.7153  (10.8s)
+abl-M0-object-only           K=   1 seed=2  acc=0.7719  macroF1=0.6811  (10.9s)
+abl-M0-object-only           K=   1 seed=3  acc=0.5489  macroF1=0.5453  (10.9s)
+abl-M0-object-only           K=   2 seed=1  acc=0.7969  macroF1=0.6957  (11.2s)
+abl-M0-object-only           K=   2 seed=2  acc=0.8017  macroF1=0.6683  (11.0s)
+abl-M0-object-only           K=   2 seed=3  acc=0.7958  macroF1=0.7224  (10.9s)
+abl-M0-object-only           K=   4 seed=1  acc=0.7327  macroF1=0.6941  (11.0s)
+abl-M0-object-only           K=   4 seed=2  acc=0.7598  macroF1=0.6908  (10.9s)
+abl-M0-object-only           K=   4 seed=3  acc=0.7814  macroF1=0.6962  (10.9s)
+abl-M0-object-only           K=   8 seed=1  acc=0.8247  macroF1=0.7181  (11.0s)
+abl-M0-object-only           K=   8 seed=2  acc=0.8094  macroF1=0.6904  (11.2s)
+abl-M0-object-only           K=   8 seed=3  acc=0.7795  macroF1=0.7163  (11.1s)
+abl-M0-object-only           K=  16 seed=1  acc=0.8224  macroF1=0.7177  (11.2s)
+abl-M0-object-only           K=  16 seed=2  acc=0.7832  macroF1=0.6855  (11.0s)
+abl-M0-object-only           K=  16 seed=3  acc=0.7922  macroF1=0.7133  (11.1s)
+abl-M0-object-only           K=full seed=1  acc=0.8324  macroF1=0.7250  (34.3s)
+abl-M0-object-only           K=full seed=2  acc=0.8239  macroF1=0.7244  (34.7s)
+abl-M0-object-only           K=full seed=3  acc=0.8272  macroF1=0.7089  (34.1s)
+abl-instances-only           K=   1 seed=1  acc=0.7786  macroF1=0.7058  (11.1s)
+abl-instances-only           K=   1 seed=2  acc=0.7777  macroF1=0.6617  (11.0s)
+abl-instances-only           K=   1 seed=3  acc=0.6272  macroF1=0.6004  (11.1s)
+abl-instances-only           K=   2 seed=1  acc=0.7943  macroF1=0.7101  (11.6s)
+abl-instances-only           K=   2 seed=2  acc=0.7941  macroF1=0.6339  (11.1s)
+abl-instances-only           K=   2 seed=3  acc=0.8073  macroF1=0.6890  (11.7s)
+abl-instances-only           K=   4 seed=1  acc=0.7423  macroF1=0.6573  (11.2s)
+abl-instances-only           K=   4 seed=2  acc=0.7443  macroF1=0.6865  (11.6s)
+abl-instances-only           K=   4 seed=3  acc=0.8078  macroF1=0.6979  (11.8s)
+abl-instances-only           K=   8 seed=1  acc=0.8175  macroF1=0.7141  (11.4s)
+abl-instances-only           K=   8 seed=2  acc=0.7896  macroF1=0.6500  (11.5s)
+abl-instances-only           K=   8 seed=3  acc=0.7552  macroF1=0.7052  (11.6s)
+abl-instances-only           K=  16 seed=1  acc=0.8194  macroF1=0.7309  (11.5s)
+abl-instances-only           K=  16 seed=2  acc=0.7736  macroF1=0.6704  (11.4s)
+abl-instances-only           K=  16 seed=3  acc=0.7961  macroF1=0.7177  (11.5s)
+abl-instances-only           K=full seed=1  acc=0.8361  macroF1=0.7346  (57.2s)
+abl-instances-only           K=full seed=2  acc=0.8308  macroF1=0.7302  (56.2s)
+abl-instances-only           K=full seed=3  acc=0.8335  macroF1=0.7304  (56.4s)
+abl-spots-only               K=   1 seed=1  acc=0.7637  macroF1=0.7056  (11.4s)
+abl-spots-only               K=   1 seed=2  acc=0.7962  macroF1=0.7049  (11.2s)
+abl-spots-only               K=   1 seed=3  acc=0.6021  macroF1=0.5917  (11.2s)
+abl-spots-only               K=   2 seed=1  acc=0.7989  macroF1=0.7146  (11.4s)
+abl-spots-only               K=   2 seed=2  acc=0.6902  macroF1=0.6187  (11.7s)
+abl-spots-only               K=   2 seed=3  acc=0.7597  macroF1=0.6839  (11.1s)
+abl-spots-only               K=   4 seed=1  acc=0.6250  macroF1=0.5786  (11.3s)
+abl-spots-only               K=   4 seed=2  acc=0.7500  macroF1=0.6798  (11.4s)
+abl-spots-only               K=   4 seed=3  acc=0.7919  macroF1=0.7031  (11.4s)
+abl-spots-only               K=   8 seed=1  acc=0.8070  macroF1=0.7020  (11.5s)
+abl-spots-only               K=   8 seed=2  acc=0.8126  macroF1=0.6903  (11.7s)
+abl-spots-only               K=   8 seed=3  acc=0.7931  macroF1=0.7389  (11.6s)
+abl-spots-only               K=  16 seed=1  acc=0.8086  macroF1=0.7114  (11.5s)
+abl-spots-only               K=  16 seed=2  acc=0.7578  macroF1=0.6534  (11.5s)
+abl-spots-only               K=  16 seed=3  acc=0.7734  macroF1=0.6996  (11.4s)
+abl-spots-only               K=full seed=1  acc=0.8399  macroF1=0.7379  (56.9s)
+abl-spots-only               K=full seed=2  acc=0.8330  macroF1=0.7398  (56.0s)
+abl-spots-only               K=full seed=3  acc=0.8391  macroF1=0.7486  (56.3s)
+abl-train-only-graph         K=   1 seed=1  acc=0.7933  macroF1=0.6402  (10.9s)
+abl-train-only-graph         K=   1 seed=2  acc=0.7995  macroF1=0.6931  (10.9s)
+abl-train-only-graph         K=   1 seed=3  acc=0.6051  macroF1=0.5941  (10.8s)
+abl-train-only-graph         K=   2 seed=1  acc=0.8115  macroF1=0.7379  (11.0s)
+abl-train-only-graph         K=   2 seed=2  acc=0.7981  macroF1=0.6524  (11.1s)
+abl-train-only-graph         K=   2 seed=3  acc=0.8173  macroF1=0.6987  (10.9s)
+abl-train-only-graph         K=   4 seed=1  acc=0.6614  macroF1=0.6110  (11.1s)
+abl-train-only-graph         K=   4 seed=2  acc=0.7853  macroF1=0.7227  (11.0s)
+abl-train-only-graph         K=   4 seed=3  acc=0.7980  macroF1=0.6983  (11.1s)
+abl-train-only-graph         K=   8 seed=1  acc=0.8160  macroF1=0.6869  (11.3s)
+abl-train-only-graph         K=   8 seed=2  acc=0.7847  macroF1=0.6441  (11.0s)
+abl-train-only-graph         K=   8 seed=3  acc=0.7802  macroF1=0.6345  (10.9s)
+abl-train-only-graph         K=  16 seed=1  acc=0.8116  macroF1=0.7090  (10.9s)
+abl-train-only-graph         K=  16 seed=2  acc=0.7848  macroF1=0.6520  (10.9s)
+abl-train-only-graph         K=  16 seed=3  acc=0.8046  macroF1=0.6805  (11.1s)
+abl-train-only-graph         K=full seed=1  acc=0.8433  macroF1=0.7508  (53.6s)
+abl-train-only-graph         K=full seed=2  acc=0.8272  macroF1=0.6963  (52.7s)
+abl-train-only-graph         K=full seed=3  acc=0.8376  macroF1=0.7341  (52.9s)
+                              acc         macro_f1        
+                             mean     std     mean     std
+method               K                                    
+PRGA-full            1     0.7330  0.0993   0.6705  0.0623
+                     16    0.7819  0.0324   0.6807  0.0381
+                     2     0.7506  0.0517   0.6556  0.0367
+                     4     0.6932  0.1060   0.6231  0.0650
+                     8     0.7442  0.0988   0.6571  0.0681
+                     full  0.8433  0.0012   0.7521  0.0058
+abl-M0-object-only   1     0.7036  0.1343   0.6472  0.0900
+                     16    0.7993  0.0205   0.7055  0.0175
+                     2     0.7981  0.0031   0.6955  0.0271
+                     4     0.7580  0.0244   0.6937  0.0027
+                     8     0.8045  0.0230   0.7083  0.0155
+                     full  0.8278  0.0043   0.7194  0.0091
+abl-grid-nodes       1     0.7236  0.1218   0.6595  0.0739
+                     16    0.7900  0.0304   0.6842  0.0340
+                     2     0.8002  0.0086   0.6687  0.0186
+                     4     0.7597  0.0366   0.6992  0.0133
+                     8     0.8088  0.0040   0.7228  0.0290
+                     full  0.8331  0.0010   0.7287  0.0050
+abl-instances-only   1     0.7278  0.0871   0.6559  0.0529
+                     16    0.7964  0.0229   0.7063  0.0318
+                     2     0.7986  0.0076   0.6777  0.0394
+                     4     0.7648  0.0373   0.6806  0.0210
+                     8     0.7874  0.0312   0.6898  0.0347
+                     full  0.8335  0.0027   0.7317  0.0025
+abl-no-gate          1     0.6947  0.1367   0.6496  0.1046
+                     16    0.7818  0.0221   0.6852  0.0132
+                     2     0.7363  0.0739   0.6487  0.0584
+                     4     0.6947  0.0905   0.6064  0.0404
+                     8     0.7433  0.0976   0.6542  0.0676
+                     full  0.8424  0.0024   0.7548  0.0038
+abl-no-geometry      1     0.6663  0.0891   0.6252  0.0775
+                     16    0.7893  0.0243   0.6872  0.0296
+                     2     0.7568  0.0667   0.6584  0.0513
+                     4     0.6866  0.1296   0.6209  0.0879
+                     8     0.7487  0.1034   0.6578  0.0754
+                     full  0.8401  0.0039   0.7496  0.0079
+abl-no-text-nodes    1     0.6127  0.0580   0.5707  0.0313
+                     16    0.7512  0.0637   0.6507  0.0502
+                     2     0.7267  0.0681   0.6275  0.0494
+                     4     0.6592  0.1104   0.5885  0.0642
+                     8     0.7804  0.0297   0.6617  0.0110
+                     full  0.8298  0.0090   0.7083  0.0229
+abl-spots-only       1     0.7207  0.1039   0.6674  0.0656
+                     16    0.7800  0.0260   0.6881  0.0307
+                     2     0.7496  0.0551   0.6724  0.0490
+                     4     0.7223  0.0868   0.6538  0.0661
+                     8     0.8042  0.0100   0.7104  0.0253
+                     full  0.8374  0.0038   0.7421  0.0057
+abl-template-text    1     0.6928  0.1421   0.6262  0.0961
+                     16    0.7624  0.0424   0.6660  0.0404
+                     2     0.7160  0.0744   0.6285  0.0526
+                     4     0.7108  0.0735   0.6242  0.0498
+                     8     0.7210  0.0803   0.6476  0.0622
+                     full  0.8425  0.0042   0.7468  0.0096
+abl-train-only-graph 1     0.7326  0.1105   0.6425  0.0495
+                     16    0.8003  0.0139   0.6805  0.0285
+                     2     0.8089  0.0098   0.6963  0.0428
+                     4     0.7482  0.0755   0.6773  0.0588
+                     8     0.7936  0.0195   0.6552  0.0279
+                     full  0.8361  0.0082   0.7271  0.0279

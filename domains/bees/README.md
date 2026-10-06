@@ -114,6 +114,38 @@ vs 0.634, linear probe 0.798 vs 0.687.
 - As expected from the pilot, the gain from 1 seed (PRGA + DINOv2 0.66 / 0.69 at K = 4 / 16) held at K = 16
   (0.679) but shrank at K = 4 (0.663).
 
+## Third round: ablations with CLIP L/14, calibration, saved predictions
+
+`kaggle/kernel_deck_bees` re-ran every method with CLIP L/14 (best-epoch protocol) saving test probabilities
+(`results_deck/preds/`), the PRGA ablations on L/14 (`results_deck/ablations_K1-2-4-8-16-full_clip_l14.csv`) and the
+calibrated web-app models.
+
+**Ablations (macro-F1, mean of 3 seeds, PRGA default configuration):**
+
+| PRGA variant | K=1 | K=4 | K=16 | all |
+|---|---|---|---|---|
+| full (OWLv2 regions + text nodes) | 0.671 | 0.623 | 0.681 | **0.752** |
+| 3×3 grid instead of regions | 0.660 | **0.699** | 0.684 | 0.729 |
+| bee box only | 0.647 | 0.694 | **0.706** | 0.719 |
+| no class-text nodes | 0.571 | 0.589 | 0.651 | 0.708 |
+| generic text, no descriptions | 0.626 | 0.624 | 0.666 | 0.747 |
+
+Removing the class-text nodes hurts most (−10 points at 1 shot). OWLv2 regions only pay off with all photos; at 4-16
+shots a grid or the bee box alone is as good or better.
+
+**Calibration (temperature + class bias on validation, `src/calibration.py`), test set:**
+
+| model | ECE before → after | macro-F1 before → after |
+|---|---|---|
+| bees, 4 photos/class | 0.117 → 0.076 | 0.613 → 0.578 |
+| bees, all photos | 0.028 → 0.081 | 0.733 → 0.730 |
+| onions, 4 photos/class | 0.176 → 0.014 | 0.914 → 0.925 |
+| onions, all photos | 0.070 → 0.008 | 0.984 → 0.991 |
+
+On onions calibration works well. On bees it is mixed, because the bee validation photos come from the same videos
+as the support photos, so they do not represent the new-video test set. Calibrating on held-out videos is the
+obvious next step.
+
 ## Pictures: what the models see (CLIP L/14, K = 16, seed 1)
 
 Made by `src/23_bees_visualise.py` on 800 random test bees (natural 74 / 26 ratio).
