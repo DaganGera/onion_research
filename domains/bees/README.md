@@ -149,8 +149,9 @@ True share of Varroa bees: 26.1 %.
 3. **OWLv2's "spot" boxes almost never land on the mite** (red boxes, often on the background); the body-part boxes
    sometimes contain it. This matches the 38 % hit rate measured earlier.
 
-PRGA scored 0.639 here against 0.684 for the same K and seed in the full run. This script tunes on 600 of the
-validation bees instead of all of them, which changes PRGA's checkpoint and α/β choice.
+PRGA scored 0.639 here against 0.684 for the same K and seed in the full run. This script uses 600 of the
+validation bees (for PRGA's checkpoint and α/β choice) and 800 of the test bees. That is the likely cause of the
+difference, but it has not been checked separately.
 
 ## What this shows (first round, CLIP B/16)
 
