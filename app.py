@@ -15,7 +15,7 @@ from pathlib import Path
 import gradio as gr
 import matplotlib
 import numpy as np
-from PIL import ImageDraw
+from PIL import Image, ImageDraw
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
@@ -49,6 +49,13 @@ def predictor(domain, K):
     if (domain, K) not in _models:
         _models[domain, K] = Predictor(CKPT / f"app_{domain}_K{K}.pt", DOMAINS[domain]["calibration"])
     return _models[domain, K]
+
+
+def cam_overlay(im, heat):
+    """Grad-CAM heat map (blue = no influence, red = strongest influence) over the photo."""
+    import matplotlib.cm as cm
+    rgb = (cm.jet(np.clip(heat, 0, 1))[..., :3] * 255).astype(np.uint8)
+    return Image.blend(im.convert("RGB"), Image.fromarray(rgb), 0.45)
 
 
 def draw_each(im, found):
@@ -101,12 +108,12 @@ def make_tab(domain):
 
     def run(image, trained_on, query, each):
         if image is None:
-            return None, None, None, "Upload a photo first."
+            return None, None, None, None, "Upload a photo first."
         p = predictor(domain, TRAINED_ON[trained_on])
         if each:
             found = p.each_object(image)
             if not found:
-                return None, image, None, f"No {info['each']} found in the photo."
+                return None, image, None, None, f"No {info['each']} found in the photo."
             counts = {c: sum(f["pred"] == c for f in found) for c in p.classes}
             unsure = sum(not f["sure"] for f in found)
             unfamiliar = sum(not f["familiar"] for f in found)
@@ -119,7 +126,7 @@ def make_tab(domain):
             if unfamiliar > len(found) / 2:
                 lines.insert(1, f"**Warning:** most {info['each']}s look unlike the training photos "
                                 f"({info['note'].split('.')[0].lower()}), so these counts are unreliable.")
-            return share, draw_each(image, found), None, "\n".join(lines)
+            return share, draw_each(image, found), cam_overlay(image, p.last_each_cam), None, "\n".join(lines)
         out = p(image)
         found = p.search(image, query) if query and query.strip() else []
         t, cal = p.ck["test"], p.ck.get("calib") or {}
@@ -150,7 +157,8 @@ def make_tab(domain):
                      + (f"; calibration error {cal['test_ece_raw']:.3f} → {cal['test_ece_calibrated']:.3f} after "
                         f"calibration on validation." if cal else "."))
         lines.append(f"\n_{info['note']} Research prototype, not a diagnostic tool._")
-        return out["probs"], draw(image, out["regions"], found), breakdown_plot(out["parts"], p.classes), "\n".join(lines)
+        return (out["probs"], draw(image, out["regions"], found), cam_overlay(image, out["cam"]),
+                breakdown_plot(out["parts"], p.classes), "\n".join(lines))
 
     with gr.Tab(info["title"]):
         gr.Markdown(f"Upload {info['what']}.")
@@ -168,9 +176,10 @@ def make_tab(domain):
             with gr.Column():
                 label = gr.Label(label="Prediction (calibrated)", num_top_classes=4)
                 boxes = gr.Image(label="Regions (green object, blue part, red spot; numbered) and search hits (purple)")
+                cam = gr.Image(label="Grad-CAM: where the decision came from (red = strongest)")
                 parts = gr.Plot(label="Why: the score's four parts")
                 notes = gr.Markdown()
-        go.click(run, [image, trained_on, query, each], [label, boxes, parts, notes])
+        go.click(run, [image, trained_on, query, each], [label, boxes, cam, parts, notes])
 
 
 def main():

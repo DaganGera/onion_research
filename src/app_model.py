@@ -16,11 +16,18 @@ Explanations (all computed from the model itself, not approximated):
   familiar    how close the photo is to the training photos (DINOv2 cosine to the nearest support photo); below the
               5th percentile of the validation photos -> "unlike the training photos, result unreliable"
   each object for photos with many bees / bulbs: OWLv2 finds every one, each crop is classified on its own
+  Grad-CAM    gradient of the calibrated decision (predicted class minus the runner-up) back through PRGA's graph
+              and caches into CLIP's image encoder; heat = ReLU(sum over channels of activation x gradient) on the
+              patch tokens entering CLIP's last block. Region crops and the DINOv2 cache are held fixed.
   search      OWLv2 looks for any text you type; CLIP scores each found box against the same text
 """
+import copy
 import importlib
 
+import numpy as np
 import torch
+import torch.nn.functional as F
+from PIL import Image
 
 import calibration
 from backbones import Backbone
@@ -93,11 +100,57 @@ class Predictor:
         d2 = ck["a2"] * torch.exp(-ck["b2"] * (1 - b.g2 @ ck["k2"].T)) @ balance(ck["L"])
         return torch.cat([zs.cpu(), cache.cpu(), proto.cpu(), d2]).float()
 
+    def _vis(self):
+        """a float32 copy of CLIP's image encoder, for gradients (the main copy runs in float16)."""
+        key = ("vis", self.ck["backbone"])
+        if key not in _shared:
+            v = copy.deepcopy(self.clip.model.visual).float().eval()
+            for q in v.parameters():
+                q.requires_grad_(False)
+            _shared[key] = v
+        return _shared[key]
+
+    def _to_photo(self, cam, im):
+        """map a patch-grid heat map back onto the photo (undoing the pad-to-square or the centre crop)."""
+        W, H = im.size
+        cam = cam / (cam.max() + 1e-8)
+        if self.ck["pad"]:
+            S = max(W, H)
+            big = np.array(Image.fromarray(cam.astype(np.float32)).resize((S, S), Image.BILINEAR))
+            x0, y0 = (S - W) // 2, (S - H) // 2
+            return big[y0:y0 + H, x0:x0 + W]
+        s = min(W, H)
+        heat = np.zeros((H, W), np.float32)
+        x0, y0 = (W - s) // 2, (H - s) // 2
+        heat[y0:y0 + s, x0:x0 + s] = np.array(Image.fromarray(cam.astype(np.float32)).resize((s, s), Image.BILINEAR))
+        return heat
+
+    def gradcam(self, im, b, c):
+        """Grad-CAM of this model's decision for class c (see the module docstring); returns an H x W map in [0, 1]."""
+        vis, acts = self._vis(), {}
+        hook = vis.transformer.resblocks[-2].register_forward_hook(lambda m, i, o: acts.__setitem__("a", o))
+        try:
+            with torch.enable_grad():
+                x = self.clip.transform(im)[None].to(DEVICE).float().requires_grad_(True)
+                g = l2n(vis(x))
+                acts["a"].retain_grad()
+                bg = Batch(y=b.y, g=g, reg=b.reg, mask=b.mask, geom=b.geom, g2=b.g2)
+                z = (self._parts(bg).sum(0) + self.bias) / self.tau
+                (z[c] - torch.cat([z[:c], z[c + 1:]]).max()).backward()
+        finally:
+            hook.remove()
+        A, G = acts["a"], acts["a"].grad
+        if A.shape[0] != 1:                          # (tokens, batch, channels) layout
+            A, G = A.transpose(0, 1), G.transpose(0, 1)
+        cam = F.relu((A[0, 1:] * G[0, 1:]).sum(-1))
+        n = int(cam.numel() ** 0.5)
+        return self._to_photo(cam[: n * n].view(n, n).detach().cpu().numpy(), im)
+
     def _probs(self, parts):
         return calibration.apply(parts.sum(0, keepdim=True), self.tau, self.bias)[0]
 
     @torch.no_grad()
-    def __call__(self, im, explain=True):
+    def __call__(self, im, explain=True, cam=True):
         im = im.convert("RGB")
         r = self.regions(im)
         crops, mask, geom, kind = feat.region_nodes(im, r)
@@ -121,8 +174,9 @@ class Predictor:
             b2 = Batch(y=b.y, g=g, reg=reg[None], mask=mk[None], geom=b.geom, g2=g2)
             importance.append(base - margin(self._parts(b2)))
         sure = self.unsure_below is None or float(probs[c]) >= self.unsure_below
+        heat = self.gradcam(im, b, c) if cam else None
         return dict(probs=dict(zip(self.classes, probs.tolist())), pred=self.classes[c], sure=sure,
-                    parts=parts, importance=importance, regions=r, familiar=familiar,
+                    parts=parts, importance=importance, regions=r, familiar=familiar, cam=heat,
                     is_familiar=self.familiar_below is None or familiar >= self.familiar_below)
 
     @torch.no_grad()
@@ -151,13 +205,18 @@ class Predictor:
         """classify every object in a crowded photo on its own (no per-region explanations, for speed)."""
         im = im.convert("RGB")
         found = []
+        heat = np.zeros((im.height, im.width), np.float32)
         for o in self.objects(im, **kw):
             x0, y0, x1, y1 = o["box"]
             m = 0.1 * max(x1 - x0, y1 - y0)
             crop = im.crop((max(0, x0 - m), max(0, y0 - m), min(im.width, x1 + m), min(im.height, y1 + m)))
             r = self(crop, explain=False)
+            cx0, cy0 = int(max(0, x0 - m)), int(max(0, y0 - m))
+            h, w = r["cam"].shape
+            heat[cy0:cy0 + h, cx0:cx0 + w] = np.maximum(heat[cy0:cy0 + h, cx0:cx0 + w], r["cam"][: im.height - cy0, : im.width - cx0])
             found.append(dict(box=o["box"], pred=r["pred"], conf=max(r["probs"].values()), sure=r["sure"],
                               familiar=r["is_familiar"]))
+        self.last_each_cam = heat
         return found
 
     @torch.no_grad()
