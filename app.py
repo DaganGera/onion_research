@@ -124,8 +124,8 @@ def make_tab(domain):
                      "", "_Boxes: red = defect / pest class, green = healthy, orange = not sure. Each crop is classified "
                      "on its own; small or blurred crops are less reliable._"]
             if unfamiliar > len(found) / 2:
-                lines.insert(1, f"**Warning:** most {info['each']}s look unlike the training photos "
-                                f"({info['note'].split('.')[0].lower()}), so these counts are unreliable.")
+                lines.insert(1, f"**Warning:** most {info['each']} crops look unlike the training photos, "
+                                "so these counts are unreliable.")
             return share, draw_each(image, found), cam_overlay(image, p.last_each_cam), None, "\n".join(lines)
         out = p(image)
         found = p.search(image, query) if query and query.strip() else []

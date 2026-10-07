@@ -197,6 +197,8 @@ class Predictor:
         boxes[:, 1::2] = boxes[:, 1::2].clamp(0, H)
         area = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1]) / (W * H)
         keep = ((sc >= thr) & (area < 0.5) & (area > 0.002)).nonzero().squeeze(1)
+        if not len(keep):                          # a single object filling the photo: allow large boxes
+            keep = ((sc >= thr) & (area < 0.98) & (area > 0.002)).nonzero().squeeze(1)
         from torchvision.ops import nms
         keep = keep[nms(boxes[keep], sc[keep], 0.3)][:max_n] if len(keep) else keep
         return [dict(box=boxes[j].tolist(), score=float(sc[j])) for j in keep.tolist()]
