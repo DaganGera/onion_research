@@ -1,4 +1,4 @@
-"""Web app to try the final model (PRGA + DINOv2 cache) on your own photos: onion bulbs and honeybees.
+"""Web app to try the final model (PRGA + DINOv2 cache) on your own photos: onion bulbs, honeybees and steel surfaces.
 
   .venv/bin/python app.py            then open http://127.0.0.1:7860
   .venv/bin/python app.py --share    also prints a temporary public link (e.g. for a mentor)
@@ -190,7 +190,7 @@ def main():
     ready = [d for d in DOMAINS if all((CKPT / f"app_{d}_K{k}.pt").exists() for k in TRAINED_ON.values())]
     if not ready:
         sys.exit(f"No checkpoints in {CKPT}. Build them on Kaggle with src/24_export_app_model.py.")
-    with gr.Blocks(title="Few-shot inspection: onions and bees") as demo:
+    with gr.Blocks(title="Few-shot inspection: onions, bees and steel") as demo:
         gr.Markdown("# Few-shot inspection: onion bulbs, honeybees and steel\n"
                     "PRGA + DINOv2 cache: frozen CLIP and DINOv2, a small graph adapter trained on a few labelled "
                     "photos. The first prediction in each tab loads the models (about 10-30 s).")

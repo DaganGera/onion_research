@@ -240,9 +240,22 @@ Training time for one support set is seconds to a minute on a laptop GPU. Epochs
 
 An epoch is one pass over the augmented views of every support photo.
 
+## Third domain: steel surface defects (industrial)
+
+To check that PRGA is not tied to agriculture, the same code was run unchanged on **NEU-CLS**, hot-rolled steel strip
+defects (6 classes, 1,799 images, 1,440 test). Full write-up: [domains/steel/README.md](domains/steel/README.md).
+
+- **PRGA + DINOv2 is best or within the seed spread of the best at every K**: 0.834 (1 shot, +3.6 points over the
+  next method), 0.962 (4), 0.991 (16), 0.993 (all), with CLIP L/14 chosen on validation (B/16 is slightly better on
+  test: 0.969 / 0.995 / 0.996).
+- Zero-shot CLIP is near chance (0.15), so the labelled photos do the work; the base paper (0.775 at 4 shots) and a
+  fine-tuned CNN (0.748) fall far behind.
+- Ablations repeat the onion finding: running the graph only in training is the biggest gain (+11.6 points at 4
+  shots). A patch grid beats OWLv2 regions here, because steel defects are textures, not objects.
+
 ## Web app
 
-Try the final model (PRGA + DINOv2 cache) on your own photos, onions or bees, in the browser:
+Try the final model (PRGA + DINOv2 cache) on your own photos, onions, bees or steel surfaces, in the browser:
 
 ```
 .venv/bin/python app.py            # then open http://127.0.0.1:7860
@@ -254,7 +267,7 @@ uses (green = object, blue = part, red = spot) and how much each one matters, an
 its four parts (text match, CLIP cache, photo-specific prototypes, DINOv2 cache), a text search inside the photo
 ("a varroa mite") and the test macro-F1 of the exact model being used. Calibration (temperature + class bias, fitted
 on validation) is in `src/calibration.py`. You can switch between the model trained on 4 photos per class and
-the one trained on all training photos (onions 0.917 / 0.987, bees 0.613 / 0.744). The app only predicts, about 0.35 s
+the one trained on all training photos (onions 0.917 / 0.987, bees 0.613 / 0.744, steel 0.981 / 0.992). The app only predicts, about 0.35 s
 per photo on a laptop GPU. The models are trained on Kaggle by `src/24_export_app_model.py` (kernels
 `kaggle/kernel_app_export*`) and saved in `checkpoints/app_<domain>_K<K>.pt`. CLIP L/14 for the bee tab is loaded
 from `third_party/models/clip_l14_openai_fp16.pt` if present (`kaggle/kernel_clip_l14_weights`). Example test photos
@@ -374,7 +387,8 @@ Every training script can be stopped and restarted: finished (method, K, seed) r
 
 ## Limitations
 
-- One dataset (one phone, one site, four classes); other crops and cameras are untested.
+- Onions: one dataset (one phone, one site, four classes); other crops and cameras are untested. Bees and steel
+  are one public dataset each (lab videos, clean NEU lab patches); field and production-line images are untested.
 - Three seeds per setting, so small differences are within noise.
 - The base paper has no public code; the replication fills documented gaps.
 - The comparison methods are our re-implementations of each paper's main equation on frozen features, not the
