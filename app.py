@@ -28,12 +28,17 @@ CKPT = ROOT / "checkpoints"
 EXAMPLES = ROOT / "app_examples"
 DOMAINS = {
     "onion": dict(title="Onion bulbs", what="a photo of one or more onion bulbs", search="black mould, a rotten spot",
+                  each="bulb", calibration="bias",
                   note="4 classes: healthy / unhealthy × red / white. Trained on photos from one site."),
     "bees": dict(title="Honeybees (Varroa mite)", what="a close-up of a single bee, seen from above",
-                 search="a varroa mite",
+                 search="a varroa mite", each="bee", calibration="temperature",
                  note="2 classes: healthy bee / bee with a Varroa mite. Trained on lab video crops; "
                       "on new videos macro-F1 is about 0.7."),
 }
+DOMAINS["steel"] = dict(title="Steel surface defects", what="a close-up photo of a steel surface (NEU-style patch)",
+                       search="a scratch, a crack", each="defect", calibration="bias",
+                       note="6 classes: crazing, inclusion, patches, pitted surface, rolled-in scale, scratches "
+                            "(NEU hot-rolled steel strips). Industrial generalisation test of the same model.")
 TRAINED_ON = {"4 photos per class": "4", "all training photos": "full"}
 COLORS = {"object": (0, 170, 0), "instance": (30, 110, 255), "spot": (230, 30, 30)}
 SEARCH_COLOR = (160, 32, 240)
@@ -42,8 +47,19 @@ _models = {}
 
 def predictor(domain, K):
     if (domain, K) not in _models:
-        _models[domain, K] = Predictor(CKPT / f"app_{domain}_K{K}.pt")
+        _models[domain, K] = Predictor(CKPT / f"app_{domain}_K{K}.pt", DOMAINS[domain]["calibration"])
     return _models[domain, K]
+
+
+def draw_each(im, found):
+    """one box per object: red = defect / pest class, green = healthy, orange = not sure."""
+    im = im.convert("RGB").copy()
+    d = ImageDraw.Draw(im)
+    w = max(2, im.width // 300)
+    for f in found:
+        col = (255, 150, 0) if not f["sure"] else (0, 170, 0) if f["pred"].startswith("healthy") else (230, 30, 30)
+        d.rectangle(f["box"], outline=col, width=w)
+    return im
 
 
 def draw(im, r, found):
@@ -83,15 +99,35 @@ def breakdown_plot(parts, classes):
 def make_tab(domain):
     info = DOMAINS[domain]
 
-    def run(image, trained_on, query):
+    def run(image, trained_on, query, each):
         if image is None:
             return None, None, None, "Upload a photo first."
         p = predictor(domain, TRAINED_ON[trained_on])
+        if each:
+            found = p.each_object(image)
+            if not found:
+                return None, image, None, f"No {info['each']} found in the photo."
+            counts = {c: sum(f["pred"] == c for f in found) for c in p.classes}
+            unsure = sum(not f["sure"] for f in found)
+            unfamiliar = sum(not f["familiar"] for f in found)
+            share = {c: n / len(found) for c, n in counts.items()}
+            lines = [f"### {len(found)} {info['each']}s found and classified one by one",
+                     *[f"- **{c}**: {n} ({share[c]:.0%})" for c, n in counts.items()],
+                     f"- not sure: {unsure}" + (f"; unlike the training photos: {unfamiliar}" if unfamiliar else ""),
+                     "", "_Boxes: red = defect / pest class, green = healthy, orange = not sure. Each crop is classified "
+                     "on its own; small or blurred crops are less reliable._"]
+            if unfamiliar > len(found) / 2:
+                lines.insert(1, f"**Warning:** most {info['each']}s look unlike the training photos "
+                                f"({info['note'].split('.')[0].lower()}), so these counts are unreliable.")
+            return share, draw_each(image, found), None, "\n".join(lines)
         out = p(image)
         found = p.search(image, query) if query and query.strip() else []
         t, cal = p.ck["test"], p.ck.get("calib") or {}
         conf = max(out["probs"].values())
         lines = []
+        if not out["is_familiar"]:
+            lines.append(f"**Warning: this photo looks unlike the training photos** (similarity {out['familiar']:.2f}, "
+                         f"95 % of validation photos are above {p.familiar_below:.2f}). The result below is unreliable.")
         if out["sure"]:
             lines.append(f"### {out['pred']} ({conf:.0%})")
         else:
@@ -124,6 +160,7 @@ def make_tab(domain):
                 trained_on = gr.Radio(list(TRAINED_ON), value="all training photos", label="Model trained on")
                 query = gr.Textbox(label="Search inside the photo (optional, comma-separated)",
                                    placeholder=f"e.g. {info['search']}")
+                each = gr.Checkbox(label=f"Many {info['each']}s in the photo: find and classify each {info['each']}")
                 go = gr.Button("Classify", variant="primary")
                 ex = sorted((EXAMPLES / domain).glob("*.jpg"))
                 if ex:
@@ -133,7 +170,7 @@ def make_tab(domain):
                 boxes = gr.Image(label="Regions (green object, blue part, red spot; numbered) and search hits (purple)")
                 parts = gr.Plot(label="Why: the score's four parts")
                 notes = gr.Markdown()
-        go.click(run, [image, trained_on, query], [label, boxes, parts, notes])
+        go.click(run, [image, trained_on, query, each], [label, boxes, parts, notes])
 
 
 def main():
@@ -141,14 +178,14 @@ def main():
     ap.add_argument("--share", action="store_true")
     ap.add_argument("--port", type=int, default=7860)
     a = ap.parse_args()
-    missing = [f"app_{d}_K{k}.pt" for d in DOMAINS for k in TRAINED_ON.values() if not (CKPT / f"app_{d}_K{k}.pt").exists()]
-    if missing:
-        sys.exit(f"Missing checkpoints in {CKPT}: {missing}. Build them on Kaggle with src/24_export_app_model.py.")
+    ready = [d for d in DOMAINS if all((CKPT / f"app_{d}_K{k}.pt").exists() for k in TRAINED_ON.values())]
+    if not ready:
+        sys.exit(f"No checkpoints in {CKPT}. Build them on Kaggle with src/24_export_app_model.py.")
     with gr.Blocks(title="Few-shot inspection: onions and bees") as demo:
-        gr.Markdown("# Few-shot inspection: onion bulbs and honeybees\n"
+        gr.Markdown("# Few-shot inspection: onion bulbs, honeybees and steel\n"
                     "PRGA + DINOv2 cache: frozen CLIP and DINOv2, a small graph adapter trained on a few labelled "
                     "photos. The first prediction in each tab loads the models (about 10-30 s).")
-        for d in DOMAINS:
+        for d in ready:
             make_tab(d)
     demo.launch(server_name="127.0.0.1", server_port=a.port, share=a.share)
 

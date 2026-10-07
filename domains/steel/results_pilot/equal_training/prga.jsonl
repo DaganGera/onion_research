@@ -1,0 +1,4 @@
+{"method": "PRGA", "variant": "as-is", "K": "4", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 14.896601676940918, "val_macro_f1": 0.9460856587293369, "acc": 0.9222222222222223, "macro_f1": 0.9219838733729012}
+{"method": "PRGA + DINOv2 cache", "variant": "as-is", "K": "4", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 14.896601676940918, "val_macro_f1": 0.9790297303455198, "acc": 0.9701388888888889, "macro_f1": 0.9698319789691371}
+{"method": "PRGA", "variant": "as-is", "K": "16", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 11.882361650466919, "val_macro_f1": 0.9924237532238308, "acc": 0.9944444444444445, "macro_f1": 0.9944385880196461}
+{"method": "PRGA + DINOv2 cache", "variant": "as-is", "K": "16", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 11.882361650466919, "val_macro_f1": 0.9962116320117095, "acc": 0.9944444444444445, "macro_f1": 0.9944293463802795}

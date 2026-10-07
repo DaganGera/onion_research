@@ -1,0 +1,2 @@
+{"method": "Tip-Adapter-F [clip_l14]", "variant": "best-epoch", "K": "4", "seed": 1, "epochs": 40, "best_epoch": 28, "fit_s": 8.562037229537964, "val_macro_f1": 0.9364545586395829, "acc": 0.9298611111111111, "macro_f1": 0.9283584568868238}
+{"method": "Tip-Adapter-F [clip_l14]", "variant": "best-epoch", "K": "16", "seed": 1, "epochs": 40, "best_epoch": 12, "fit_s": 7.49210786819458, "val_macro_f1": 0.9771774729639899, "acc": 0.9777777777777777, "macro_f1": 0.9777713280704287}

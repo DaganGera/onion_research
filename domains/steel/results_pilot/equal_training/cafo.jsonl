@@ -1,0 +1,2 @@
+{"method": "PlantCaFo-style cache", "variant": "best-epoch", "K": "4", "seed": 1, "epochs": 40, "best_epoch": 4, "fit_s": 37.33180904388428, "val_macro_f1": 0.9701037953250343, "acc": 0.9645833333333333, "macro_f1": 0.9644850250581847}
+{"method": "PlantCaFo-style cache", "variant": "best-epoch", "K": "16", "seed": 1, "epochs": 40, "best_epoch": 12, "fit_s": 31.117796659469604, "val_macro_f1": 0.9846963273929566, "acc": 0.9902777777777778, "macro_f1": 0.990271113393472}

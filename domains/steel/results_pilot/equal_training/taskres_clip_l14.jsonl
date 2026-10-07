@@ -1,0 +1,2 @@
+{"method": "TaskRes [clip_l14]", "variant": "best-epoch", "K": "4", "seed": 1, "epochs": 100, "best_epoch": 100, "fit_s": 0.43108534812927246, "val_macro_f1": 0.9450661346182834, "acc": 0.9284722222222223, "macro_f1": 0.9265098696527684}
+{"method": "TaskRes [clip_l14]", "variant": "best-epoch", "K": "16", "seed": 1, "epochs": 100, "best_epoch": 70, "fit_s": 1.243227481842041, "val_macro_f1": 0.9734368703942741, "acc": 0.9819444444444444, "macro_f1": 0.9818914999759616}

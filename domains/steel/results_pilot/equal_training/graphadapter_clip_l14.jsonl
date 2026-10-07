@@ -1,0 +1,2 @@
+{"method": "GraphAdapter [clip_l14]", "variant": "best-epoch", "K": "4", "seed": 1, "epochs": 100, "best_epoch": 100, "fit_s": 0.5630073547363281, "val_macro_f1": 0.8565662830695452, "acc": 0.8236111111111111, "macro_f1": 0.8232385562129779}
+{"method": "GraphAdapter [clip_l14]", "variant": "best-epoch", "K": "16", "seed": 1, "epochs": 100, "best_epoch": 70, "fit_s": 1.7315514087677002, "val_macro_f1": 0.9542613286799334, "acc": 0.9631944444444445, "macro_f1": 0.9632027252014654}

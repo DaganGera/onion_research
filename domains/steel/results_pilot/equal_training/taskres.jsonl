@@ -1,0 +1,2 @@
+{"method": "TaskRes", "variant": "best-epoch", "K": "4", "seed": 1, "epochs": 100, "best_epoch": 50, "fit_s": 0.3629271984100342, "val_macro_f1": 0.902405516720557, "acc": 0.9069444444444444, "macro_f1": 0.9070835196264792}
+{"method": "TaskRes", "variant": "best-epoch", "K": "16", "seed": 1, "epochs": 100, "best_epoch": 20, "fit_s": 1.2778170108795166, "val_macro_f1": 0.9848479956480731, "acc": 0.9840277777777777, "macro_f1": 0.9839988724673129}

@@ -1,0 +1,20 @@
+{
+ "crazing": ["a steel surface covered with a network of fine hairline cracks",
+             "fine crack-like lines forming a web pattern on a metal strip",
+             "a grey metal surface with many tiny interconnected cracks"],
+ "inclusion": ["dark elongated spots embedded in a steel surface",
+               "non-metallic inclusions appearing as dark streaks in metal",
+               "small dark irregular specks and lines inside a grey steel strip"],
+ "patches": ["large irregular dark patches on a steel surface",
+             "blotchy uneven areas of different brightness on a metal strip",
+             "big cloudy stains spread over a grey steel surface"],
+ "pitted surface": ["small pits and holes scattered over a steel surface",
+                    "a metal surface with many tiny dark dents and pores",
+                    "a grey steel strip with a rough pitted texture"],
+ "rolled-in scale": ["scale pressed into a steel surface as dark flaky spots",
+                     "rough dark scale fragments rolled into a metal strip",
+                     "a steel surface with clustered dark flakes and bumps"],
+ "scratches": ["long straight scratch lines on a steel surface",
+               "thin bright or dark linear scratches across a metal strip",
+               "a grey steel surface with parallel scratch marks"]
+}

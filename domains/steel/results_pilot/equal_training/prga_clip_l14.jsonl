@@ -1,0 +1,4 @@
+{"method": "PRGA [clip_l14]", "variant": "as-is", "K": "4", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 15.459180355072021, "val_macro_f1": 0.9641268099362842, "acc": 0.9291666666666667, "macro_f1": 0.9281556945525287}
+{"method": "PRGA + DINOv2 cache [clip_l14]", "variant": "as-is", "K": "4", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 15.459180355072021, "val_macro_f1": 0.9850858244705473, "acc": 0.9645833333333333, "macro_f1": 0.9641373876104238}
+{"method": "PRGA [clip_l14]", "variant": "as-is", "K": "16", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 12.309159517288208, "val_macro_f1": 0.9924648786717752, "acc": 0.9868055555555556, "macro_f1": 0.9867727316729878}
+{"method": "PRGA + DINOv2 cache [clip_l14]", "variant": "as-is", "K": "16", "seed": 1, "epochs": 60, "best_epoch": -1, "fit_s": 12.309159517288208, "val_macro_f1": 1.0, "acc": 0.9916666666666667, "macro_f1": 0.9916530831475479}

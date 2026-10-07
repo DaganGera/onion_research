@@ -1,0 +1,31 @@
+PRGA                   as-is      K=   4 s=1 epochs=  60 best=  -1  macroF1=0.9220  (15s)
+PRGA + DINOv2 cache    as-is      K=   4 s=1 epochs=  60 best=  -1  macroF1=0.9698  (15s)
+PRGA                   as-is      K=  16 s=1 epochs=  60 best=  -1  macroF1=0.9944  (12s)
+PRGA + DINOv2 cache    as-is      K=  16 s=1 epochs=  60 best=  -1  macroF1=0.9944  (12s)
+Tip-Adapter-F          best-epoch K=   4 s=1 epochs=  40 best=  28  macroF1=0.8913  (9s)
+Tip-Adapter-F          best-epoch K=  16 s=1 epochs=  40 best=  12  macroF1=0.9861  (8s)
+PlantCaFo-style cache  best-epoch K=   4 s=1 epochs=  40 best=   4  macroF1=0.9645  (37s)
+PlantCaFo-style cache  best-epoch K=  16 s=1 epochs=  40 best=  12  macroF1=0.9903  (31s)
+CLIP-Adapter           best-epoch K=   4 s=1 epochs= 100 best=  40  macroF1=0.9109  (1s)
+CLIP-Adapter           best-epoch K=  16 s=1 epochs= 100 best=  30  macroF1=0.9867  (2s)
+TaskRes                best-epoch K=   4 s=1 epochs= 100 best=  50  macroF1=0.9071  (0s)
+TaskRes                best-epoch K=  16 s=1 epochs= 100 best=  20  macroF1=0.9840  (1s)
+GraphAdapter           best-epoch K=   4 s=1 epochs= 100 best=  40  macroF1=0.3239  (1s)
+GraphAdapter           best-epoch K=  16 s=1 epochs= 100 best= 100  macroF1=0.9657  (2s)
+K                                                      4           16
+method                           variant                             
+CLIP-Adapter                     best-epoch  0.911 ± nan  0.987 ± nan
+CLIP-Adapter [clip_l14]          best-epoch  0.924 ± nan  0.983 ± nan
+GraphAdapter                     best-epoch  0.324 ± nan  0.966 ± nan
+GraphAdapter [clip_l14]          best-epoch  0.823 ± nan          NaN
+PRGA                             as-is       0.922 ± nan  0.994 ± nan
+PRGA + DINOv2 cache              as-is       0.970 ± nan  0.994 ± nan
+PRGA + DINOv2 cache [clip_l14]   as-is       0.964 ± nan  0.992 ± nan
+PRGA [clip_l14]                  as-is       0.928 ± nan  0.987 ± nan
+PlantCaFo-style cache            best-epoch  0.964 ± nan  0.990 ± nan
+PlantCaFo-style cache [clip_l14] best-epoch  0.961 ± nan  0.981 ± nan
+TaskRes                          best-epoch  0.907 ± nan  0.984 ± nan
+TaskRes [clip_l14]               best-epoch  0.927 ± nan  0.982 ± nan
+Tip-Adapter-F                    best-epoch  0.891 ± nan  0.986 ± nan
+Tip-Adapter-F [clip_l14]         best-epoch  0.928 ± nan  0.978 ± nan
+ZeroShot-clip                K=   4 seed=1  acc=0.1785  macroF1=0.1618  (0.0s)

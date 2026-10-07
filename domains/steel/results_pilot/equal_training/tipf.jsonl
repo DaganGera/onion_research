@@ -1,0 +1,2 @@
+{"method": "Tip-Adapter-F", "variant": "best-epoch", "K": "4", "seed": 1, "epochs": 40, "best_epoch": 28, "fit_s": 9.309431791305542, "val_macro_f1": 0.9021854884162045, "acc": 0.8909722222222223, "macro_f1": 0.8912712537030302}
+{"method": "Tip-Adapter-F", "variant": "best-epoch", "K": "16", "seed": 1, "epochs": 40, "best_epoch": 12, "fit_s": 7.565240383148193, "val_macro_f1": 0.9847559903235097, "acc": 0.9861111111111112, "macro_f1": 0.9861219757567233}

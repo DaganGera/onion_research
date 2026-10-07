@@ -1,0 +1,29 @@
+method,variant,K,mean,std,count
+CLIP-Adapter,best-epoch,4,0.9109185411756809,,1
+CLIP-Adapter,best-epoch,16,0.9867454336792886,,1
+CLIP-Adapter [clip_l14],best-epoch,4,0.9241698631181196,,1
+CLIP-Adapter [clip_l14],best-epoch,16,0.9825978272768608,,1
+GraphAdapter,best-epoch,4,0.323947342939268,,1
+GraphAdapter,best-epoch,16,0.9657298973746863,,1
+GraphAdapter [clip_l14],best-epoch,4,0.8232385562129779,,1
+GraphAdapter [clip_l14],best-epoch,16,0.9632027252014654,,1
+PRGA,as-is,4,0.9219838733729012,,1
+PRGA,as-is,16,0.9944385880196461,,1
+PRGA + DINOv2 cache,as-is,4,0.9698319789691371,,1
+PRGA + DINOv2 cache,as-is,16,0.9944293463802795,,1
+PRGA + DINOv2 cache [clip_l14],as-is,4,0.9641373876104238,,1
+PRGA + DINOv2 cache [clip_l14],as-is,16,0.9916530831475479,,1
+PRGA [clip_l14],as-is,4,0.9281556945525287,,1
+PRGA [clip_l14],as-is,16,0.9867727316729878,,1
+PlantCaFo-style cache,best-epoch,4,0.9644850250581847,,1
+PlantCaFo-style cache,best-epoch,16,0.990271113393472,,1
+PlantCaFo-style cache [clip_l14],best-epoch,4,0.9613434054796985,,1
+PlantCaFo-style cache [clip_l14],best-epoch,16,0.9805457595271566,,1
+TaskRes,best-epoch,4,0.9070835196264792,,1
+TaskRes,best-epoch,16,0.9839988724673129,,1
+TaskRes [clip_l14],best-epoch,4,0.9265098696527684,,1
+TaskRes [clip_l14],best-epoch,16,0.9818914999759616,,1
+Tip-Adapter-F,best-epoch,4,0.8912712537030302,,1
+Tip-Adapter-F,best-epoch,16,0.9861219757567233,,1
+Tip-Adapter-F [clip_l14],best-epoch,4,0.9283584568868238,,1
+Tip-Adapter-F [clip_l14],best-epoch,16,0.9777713280704287,,1

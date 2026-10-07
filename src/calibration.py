@@ -17,13 +17,14 @@ import torch.nn.functional as F
 TARGET = 0.90
 
 
-def fit(logits, y, steps=200):
+def fit(logits, y, steps=200, with_bias=True):
     """returns tau, bias minimising cross-entropy of softmax((logits + bias) / tau) on (logits, y).
 
     Step 1: tau alone by grid search (robust, also when validation is perfectly separated). Step 2: tau and bias
     refined by gradient steps with tau kept in [0.05, 20]. Any non-finite result falls back to the previous step,
     and in the worst case to "no change" (tau = 1, bias = 0). With no validation errors at all there is nothing to
-    learn from, so the model is left unchanged."""
+    learn from, so the model is left unchanged. with_bias=False fits the temperature only: use it when the class mix
+    of the validation photos need not match the photos the model will see (the bias would learn that mix)."""
     z = logits.detach().float()
     nll = lambda t, b: float(F.cross_entropy((z + b) / t, y))  # noqa: E731
     zero = torch.zeros(z.shape[1])
@@ -32,8 +33,8 @@ def fit(logits, y, steps=200):
     grid = torch.logspace(-1.3, 1.3, 53)
     tau0 = float(min(grid, key=lambda t: nll(float(t), zero)))
     log_tau = torch.tensor([float(torch.log(torch.tensor(tau0)))], requires_grad=True)
-    bias = torch.zeros(z.shape[1], requires_grad=True)
-    opt = torch.optim.Adam([log_tau, bias], lr=0.05)
+    bias = torch.zeros(z.shape[1], requires_grad=with_bias)
+    opt = torch.optim.Adam([log_tau, bias] if with_bias else [log_tau], lr=0.05)
     for _ in range(steps):
         opt.zero_grad()
         tau = log_tau.clamp(-3.0, 3.0).exp()

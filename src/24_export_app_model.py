@@ -16,7 +16,7 @@ import torch
 from PIL import Image
 
 import calibration
-from common import CKPT, CLASSES, DATASET, DROOT, PAD_SQUARE, RAW, SPLITS, metrics, seed_all
+from common import CKPT, CLASSES, DATASET, DROOT, PAD_SQUARE, RAW, SPLITS, l2n, metrics, seed_all
 from fewshot import PRGA, Store, onehot
 from harness import load_text
 
@@ -58,6 +58,18 @@ def main():
                      test_ece_raw=round(calibration.ece(raw, te.y), 4), test_ece_calibrated=round(calibration.ece(cal, te.y), 4),
                      test_share_sure=round(float(sure.float().mean()), 4),
                      test_acc_when_sure=round(float((cal.argmax(1)[sure] == te.y[sure]).float().mean()), 4))
+        tau_t, _ = calibration.fit(zv, va.y, with_bias=False)         # temperature only (no class-mix bias)
+        cal_t = calibration.apply(zt, tau_t, torch.zeros(zt.shape[1]))
+        calib["tau_only"] = dict(tau=tau_t, unsure_below=calibration.unsure_threshold(
+            calibration.apply(zv, tau_t, torch.zeros(zv.shape[1])), va.y),
+            test_macro_f1=round(metrics(te.y.numpy(), cal_t.argmax(1).numpy())["macro_f1"], 4),
+            test_ece=round(calibration.ece(cal_t, te.y), 4))
+        # "unfamiliar photo" threshold: how close validation photos get to the support photos in DINOv2 space;
+        # a new photo below the 5th percentile looks unlike anything the model was built from
+        fam_v = (l2n(va.g2) @ l2n(k2).T).max(1).values
+        fam_t = (l2n(te.g2) @ l2n(k2).T).max(1).values
+        calib["familiar_below"] = float(torch.quantile(fam_v, 0.05))
+        calib["test_share_familiar"] = round(float((fam_t >= calib["familiar_below"]).float().mean()), 4)
         print(f"{DATASET} K={K} calibration: {calib}", flush=True)
         ck = dict(domain=DATASET, backbone=a.backbone, pad=PAD_SQUARE, classes=CLASSES, K=K, seed=s, n_support=len(tr),
                   T=T, cfg=m.cfg, test_graph=m.test_graph, net=m.net.state_dict(),

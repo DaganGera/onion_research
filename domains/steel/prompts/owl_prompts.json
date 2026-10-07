@@ -1,0 +1,5 @@
+{
+ "object": ["a metal surface", "a steel plate", "a surface texture"],
+ "instance": ["a defect", "a stain", "a mark"],
+ "spot": ["a crack", "a scratch", "a pit", "a dark spot", "a dark patch", "a flake"]
+}

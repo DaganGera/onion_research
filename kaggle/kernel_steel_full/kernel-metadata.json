@@ -1,0 +1,14 @@
+{
+  "id": "marcbenjamessamuel/steel-full",
+  "title": "steel-full",
+  "code_file": "steel_full.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["marcbenjamessamuel/onion-bees-code", "kaustubhdikshit/neu-surface-defect-database"],
+  "competition_sources": [],
+  "kernel_sources": []
+}
